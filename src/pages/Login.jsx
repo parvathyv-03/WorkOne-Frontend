@@ -1,8 +1,51 @@
 import "@fontsource/poppins";
 import loginImage from "../assets/login-img.jpg";
+import { useState } from "react";
+import axios from "../api/axios";
+import { useNavigate } from "react-router-dom";
 
 
 export default function Login(){
+
+    const [username,setUsername] = useState("")
+    const [password,setPassword] = useState("")
+    const[loading,setLoading] = useState(false)
+
+    const navigate = useNavigate();
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+
+        setLoading(true);
+
+        try{
+            const response = await axios.post(
+                "/api/login/",
+                {
+                    username,
+                    password,
+                }
+            );
+            console.log(response.data);
+
+            // save token
+            localStorage.setItem(
+                "accessToken",
+                response.data.access
+            );
+
+            if(response.data.role === "employee"){
+                // navigate to employee dashboard
+                navigate("/employee-dashboard");
+            }
+            
+        }catch(error){
+                console.log(error.response?.data || error.message);
+        }finally{
+            setLoading(false);
+        }
+    };
+
     return(
         <div className="flex h-screen w-full font-[Poppins]">
             {/* left image */}
@@ -46,7 +89,7 @@ export default function Login(){
                         Welcome Back! Please login to your account.
                     </p>
 
-                    <form className="space-y-6">
+                    <form onSubmit={handleLogin} className="space-y-6">
                         {/* username */}
                         <div>
                             <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -55,7 +98,10 @@ export default function Login(){
 
                             <input
                                 type="text"
+                                required
                                 placeholder="Enter your Username"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
                                 className="w-full rounded-xl border border-gray-300 p-4 outline-none transition focus:border-blue-600"
                             />
                         </div>
@@ -68,7 +114,10 @@ export default function Login(){
 
                                 <input
                                     type="password"
+                                    required
                                     placeholder="Enter your password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                     className="w-full rounded-xl border border-gray-300 p-4 outline-none transition focus:border-blue-600"
                                 />
                             </div>
@@ -84,9 +133,10 @@ export default function Login(){
 
                             <button
                                 type="submit"
+                                disabled={loading}
                                 className="w-full !rounded-full bg-blue-600 py-4 text-white font-semibold"
                             >
-                                Login
+                                {loading ? "Logging in ..." : "Login"}
                             </button>
                                                     
                     </form>
