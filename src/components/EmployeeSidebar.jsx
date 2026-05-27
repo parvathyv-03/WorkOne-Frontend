@@ -8,6 +8,7 @@ import {
     FaBell,
     FaSignOutAlt,
 } from "react-icons/fa"
+import { useNavigate } from "react-router-dom";
 
 export default function EmployeeSidebar() {
 
@@ -41,6 +42,12 @@ export default function EmployeeSidebar() {
             icon: <FaBell/>
         },
     ];
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem("accessToken");
+        navigate("/");
+    };
 
     return(
         <div className="flex min-h-screen w-72 flex-col bg-slate-900 text-white">
@@ -82,7 +89,9 @@ export default function EmployeeSidebar() {
             {/* logout */}
 
             <div className="border-t border-slate-700 p-4">
-                    <button className="flex w-full items-center gap-4 rounded-2xl bg-red-500 px-4 py-4 text-lg font-medium transition duration-300 hover:bg-red-600">
+                    <button
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-4 rounded-2xl bg-red-500 px-4 py-4 text-lg font-medium transition duration-300 hover:bg-red-600">
                         <FaSignOutAlt/>
 
                         Logout

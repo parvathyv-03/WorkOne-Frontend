@@ -34,6 +34,11 @@ export default function Login(){
                 response.data.access
             );
 
+            localStorage.setItem(
+                "username",
+                response.data.username
+            );
+
             if(response.data.role === "employee"){
                 // navigate to employee dashboard
                 navigate("/employee-dashboard");
@@ -45,6 +50,8 @@ export default function Login(){
             setLoading(false);
         }
     };
+
+    
 
     return(
         <div className="flex h-screen w-full font-[Poppins]">

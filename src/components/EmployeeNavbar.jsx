@@ -2,7 +2,7 @@ import { FaBell,FaSearch } from "react-icons/fa";
 
 export default function EmployeeNavbar(){
     return (
-        <div className="flex items-center justify-between border-b border-gray-200 bg-white px-8 py-5 shadow-sm">
+        <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-2 shadow-sm">
             {/* Left side */}
 
             <div>
