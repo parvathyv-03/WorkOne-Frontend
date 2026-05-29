@@ -1,4 +1,4 @@
-import "@fontsource/poppins";
+// import "@fontsource/poppins";
 import loginImage from "../assets/login-img.jpg";
 import { useState } from "react";
 import axios from "../api/axios";
@@ -41,7 +41,7 @@ export default function Login(){
 
             if(response.data.role === "employee"){
                 // navigate to employee dashboard
-                navigate("/employee-dashboard");
+                navigate("/employee/dashboard");
             }
             
         }catch(error){
@@ -54,7 +54,7 @@ export default function Login(){
     
 
     return(
-        <div className="flex h-screen w-full font-[Poppins]">
+        <div className="flex h-screen w-full">
             {/* left image */}
             <div className="relative hidden md:flex w-1/2">
                 <img 

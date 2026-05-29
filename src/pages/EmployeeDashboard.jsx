@@ -1,20 +1,22 @@
-import EmployeeSidebar from "../components/EmployeeSidebar";
-import EmployeeNavbar from "../components/EmployeeNavbar";
+
 import {
         FaClock,
         FaCalendarAlt,
         FaExclamationCircle,
         FaMoneyCheckAlt,
 } from "react-icons/fa";
+import { useState } from "react";
 
 export default function EmployeeDashboard(){
     const username = localStorage.getItem("username")
+
+    const [activeMenu,setActiveMenu] = useState("dashboard");
     return(
         <div className="flex">
-            <EmployeeSidebar/>
+            
 
             <div className="flex-1 bg-gray-100 min-h-screen">
-                <EmployeeNavbar/>
+               
 
                 <div className="p-8">
                     <h1 className="text-4xl font-bold text-gray-800">
@@ -141,7 +143,7 @@ export default function EmployeeDashboard(){
 
 
                                         <p className="mt-6 text-gray-400">
-                                            This month(May 2026)
+                                            This month (May 2026)
                                         </p>
                                     </div>
                                 </div>
@@ -245,6 +247,100 @@ export default function EmployeeDashboard(){
                                     </div>
                                 </div>
                             </div>
+                    </div>
+
+                    {/* THIRD SECTION */}
+
+                    <div className="mt-10 grid grid-cols-1 gap-6 xl:grid-cols-2">
+                        {/* RECENT ACTIVITIES */}
+
+                        <div className="rounded-3xl bg-white p-6 shadow-md">
+
+                            <h2 className="mb-6 text-2xl font-bold text-gray-800">
+                                Recent Activities
+                            </h2>
+
+                            <div className="space-y-5">
+
+                                <div className="flex items-start gap-4 border-b pb-4">
+
+                                    <div className="mt-1 h-3 w-3 rounded-full bg-green-500"></div>
+
+                                    <div>
+                                        <p className="font-medium text-gray-700">
+                                            Your leave request has been approved.
+                                        </p>
+
+                                        <p className="text-sm text-gray-400">
+                                            2 Hours ago.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-4 border-b pb-4">
+                                    <div className="mt-1 h-3 w-3 rounded-full bg-blue-500"></div>
+
+                                        <div>
+                                            <p className="font-medium text-gray-700">
+                                                You checked in at 9:12 AM.
+                                            </p>
+
+                                            <p className="text-sm text-gray-400">
+                                                Today
+                                            </p>
+                                        </div>
+                                </div>
+                                    
+
+                                    <div className="flex items-start gap-4">
+
+                                        <div className="mt-1 h-3 w-3 rounded-full bg-orange-500"></div>
+
+                                        <div>
+                                            <p className="font-medium text-gray-700">
+                                                New payslip is available.
+                                            </p>
+
+                                            <p className="text-sm text-gray-400">
+                                                Yesterday
+                                            </p>
+                                        </div>
+                                    </div>
+                                
+                            </div>
+                        </div>
+                            {/* announcements */}
+
+                            <div className="rounded-3xl bg-white p-6 shadow-md">
+
+                                <h2 className="mb-6 text-2xl font-bold text-gray-800">
+                                    Announcements
+                                </h2>
+
+                                <div className="space-y-5">
+                                    <div className="rounded-2xl bg-blue-50 p-5">
+
+                                        <h3 className="font-semibold text-blue-700">
+                                            Holiday Notice
+                                        </h3>
+
+                                        <p className="mt-2 text-sm leading-6 text-gray-600">
+                                            Office will remain closed on May 26 due to public holiday.
+                                        </p>
+                                    </div>
+
+                                    <div className="rounded-2xl bg-green-50 p-5">
+                                        <h3 className="font-semibold text-green-700">
+                                            Health Checkup Camp
+                                        </h3>
+
+                                        <p className="mt-2 text-sm leading-6 text-gray-600">
+                                            Free employee health checkup camp on May 30.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        
                     </div>
                 </div>
             </div>
