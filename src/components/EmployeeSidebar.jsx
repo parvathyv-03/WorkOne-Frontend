@@ -10,7 +10,11 @@ import {
 } from "react-icons/fa"
 import { useNavigate } from "react-router-dom";
 
-export default function EmployeeSidebar({activeMenu,setActiveMenu,}) {
+import { NavLink } from "react-router-dom";
+
+import { useLocation } from "react-router-dom";
+
+export default function EmployeeSidebar() {
 
     const menuItems = [
         {
@@ -50,6 +54,7 @@ export default function EmployeeSidebar({activeMenu,setActiveMenu,}) {
         },
     ];
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleLogout = () => {
         localStorage.removeItem("accessToken");
@@ -75,12 +80,22 @@ export default function EmployeeSidebar({activeMenu,setActiveMenu,}) {
             <div className="flex-1 px-4 py-6">
                 <ul className="space-y-3">
                     {menuItems.map((item,index) => (
-                        <li 
+                        <NavLink 
                             key={index}
-                            onClick={() => navigate(item.path)}
-                            className="flex cursor-pointer items-center gap-4 rounded-2xl px-4 py-4 text-lg transition duration hover:bg-slate-800"
+                            to={item.path}
+                            className={({ isActive }) =>
+                            `flex items-center gap-4 rounded-2xl px-4 py-4 text-lg no-underline transition duration-300
+                            ${
+                                isActive
+                                    ?"bg-blue-600 text-white shadow-lg"
+                                    :"text-gray-300 hover:bg-slate-800"
+                            }`}
                         >
-                            <span className="text-xl text-blue-400">
+                            <span className={`text-xl ${
+                                location.pathname === item.path
+                                    ? "text-white"
+                                    : "text-blue-400"
+                            }`}>
                                 {item.icon}
                             </span>
 
@@ -88,7 +103,7 @@ export default function EmployeeSidebar({activeMenu,setActiveMenu,}) {
                                 {item.name}
                             </span>
 
-                        </li>
+                        </NavLink>
                     ))}
                 </ul>
             </div>
