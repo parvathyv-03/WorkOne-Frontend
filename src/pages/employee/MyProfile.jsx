@@ -1,10 +1,13 @@
 import { FaUser,FaUserEdit,FaKey,FaFileAlt,FaChevronRight } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function MyProfile() {
   const cards = [
     {
       title: "View Personal Information",
       description: "Access your contact, emergency, and job details in one place.",
+      path: "/employee/profile/personal-info",
       icon: (
         <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-50 text-blue-600">
           <FaUser className="text-2xl"/>
@@ -14,6 +17,7 @@ export default function MyProfile() {
     {
       title: "Update Profile Details",
       description: "Keep your personal and professional profile information current.",
+      path:"/employee/profile/update-profile",
       icon: (
         <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-50 text-blue-600">
           <FaUserEdit className="text-2xl"/>
@@ -67,7 +71,6 @@ export default function MyProfile() {
           >
             <div className="flex items-center justify-between gap-4">
               {card.icon}
-              <div className="rounded-2xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Action</div>
             </div>
             <div className="mt-8">
               <h2 className="text-xl font-semibold text-slate-900 transition group-hover:text-blue-600">
@@ -77,10 +80,12 @@ export default function MyProfile() {
                 {card.description}
               </p>
             </div>
-            <div className="mt-8 flex items-center text-sm font-medium text-slate-500 transition group-hover:text-blue-600">
+            <Link 
+                to={card.path}
+                className="mt-8 flex items-center text-sm font-medium text-slate-500 transition group-hover:text-blue-600">
               <span>Open</span>
               <FaChevronRight className="ml-2 text-sm"/>
-            </div>
+            </Link>
           </button>
         ))}
       </div>

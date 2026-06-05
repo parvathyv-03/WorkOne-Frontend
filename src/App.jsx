@@ -10,6 +10,8 @@ import EmployeeLayout from "./layouts/EmployeeLayout";
 
 import { BrowserRouter,Routes,Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
+import PersonalInfo from "./pages/employee/Personalinfo";
+import UpdateProfile from "./pages/employee/UpdateProfile";
 
 function App() {
   return (
@@ -42,6 +44,16 @@ function App() {
             <Route
               path="profile"
               element={<MyProfile />}
+            />
+
+            <Route
+              path="/employee/profile/personal-info"
+              element={<PersonalInfo/>}
+            />
+
+            <Route
+              path="/employee/profile/update-profile"
+              element={<UpdateProfile/>}
             />
 
             <Route
