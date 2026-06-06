@@ -12,6 +12,7 @@ import { BrowserRouter,Routes,Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import PersonalInfo from "./pages/employee/Personalinfo";
 import UpdateProfile from "./pages/employee/UpdateProfile";
+import ChangePassword from "./pages/employee/ChangePassword";
 
 function App() {
   return (
@@ -54,6 +55,11 @@ function App() {
             <Route
               path="/employee/profile/update-profile"
               element={<UpdateProfile/>}
+            />
+
+            <Route
+              path="/employee/profile/change-password"
+              element={<ChangePassword/>}
             />
 
             <Route

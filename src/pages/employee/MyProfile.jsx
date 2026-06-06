@@ -27,6 +27,7 @@ export default function MyProfile() {
     {
       title: "Change Password",
       description: "Update your password regularly to secure your employee account.",
+      path:"/employee/profile/change-password",
       icon: (
         <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-50 text-blue-600">
             <FaKey className="text-2xl"/>
