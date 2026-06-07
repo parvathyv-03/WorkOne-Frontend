@@ -13,6 +13,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PersonalInfo from "./pages/employee/Personalinfo";
 import UpdateProfile from "./pages/employee/UpdateProfile";
 import ChangePassword from "./pages/employee/ChangePassword";
+import UploadedDocuments from "./pages/employee/UploadedDocuments";
 
 function App() {
   return (
@@ -60,6 +61,11 @@ function App() {
             <Route
               path="/employee/profile/change-password"
               element={<ChangePassword/>}
+            />
+
+            <Route
+              path="/employee/profile/uploaded-documents"
+              element={<UploadedDocuments/>}
             />
 
             <Route

@@ -77,7 +77,7 @@ export default function ChangePassword() {
             localStorage.removeItem("accessToken");
             alert("Password changed successfully. Please login again.")
 
-            navigate("/login");
+            navigate("/");
         } else {
             alert(data.error || data.confirm_password?.[0] || data.new_password?.[0] ||
                 "Password update failed."

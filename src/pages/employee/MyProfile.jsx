@@ -35,8 +35,9 @@ export default function MyProfile() {
       ),
     },
     {
-      title: "View Uploaded Documents",
+      title: " Uploaded Documents",
       description: "Review your certificates, agreements, and HR documents anytime.",
+      path:"/employee/profile/uploaded-documents",
       icon: (
         <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-50 text-blue-600">
           <FaFileAlt className="text-2xl"/>
