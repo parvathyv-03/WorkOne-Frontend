@@ -1,55 +1,13 @@
 import React, { useState,useEffect } from 'react'
 import { FaFilePdf } from 'react-icons/fa'
 import { AiOutlineEye } from 'react-icons/ai'
-import { FiDownload, FiEdit, FiUpload } from 'react-icons/fi'
+import { FiDownload, FiUpload } from 'react-icons/fi'
 import { RiExchangeFill } from 'react-icons/ri'
 
-const DUMMY_DOCS = [
-  {
-    id: 1,
-    name: 'Resume.pdf',
-    category: 'Resume',
-    uploadDate: '2026-05-10',
-    modifiedDate: '2026-05-12',
-    size: '124 KB',
-    status: 'Verified',
-    description: 'Latest CV with updated projects and certifications.'
-  },
-  {
-    id: 2,
-    name: 'Degree_Certificate.pdf',
-    category: 'Degree Certificate',
-    uploadDate: '2024-08-01',
-    modifiedDate: '2024-08-01',
-    size: '1.2 MB',
-    status: 'Verified',
-    description: 'Bachelor of Technology degree certificate.'
-  },
-  {
-    id: 3,
-    name: 'Experience_Certificate.pdf',
-    category: 'Experience Certificate',
-    uploadDate: '2025-02-15',
-    modifiedDate: '2025-02-20',
-    size: '560 KB',
-    status: 'Pending Verification',
-    description: 'Experience certificate from previous employer.'
-  },
-  {
-    id: 4,
-    name: 'Offer_Letter.pdf',
-    category: 'Offer Letter',
-    uploadDate: '2023-11-04',
-    modifiedDate: '2023-11-04',
-    size: '98 KB',
-    status: 'Verified',
-    description: 'Original offer letter for current employment.'
-  }
-]
 
 function Badge({ status }) {
-  const verified = status.toLowerCase().includes('verified')
-  const pending = status.toLowerCase().includes('pending')
+  const verified = status?.toLowerCase().includes('verified');
+  const pending = status?.toLowerCase().includes('pending');
   return (
     <span className={
       `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${verified ? 'bg-green-100 text-green-800' : pending ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`
@@ -74,7 +32,12 @@ export default function UploadedDocuments() {
         }
     )
 
-    .then((res) => res.json())
+    .then((res) => {
+        if(!res.ok){
+            throw new Error("Failed to fetch");
+        }
+        return res.json();
+    })
     .then((data) => {
         console.log(data);
         setDocs(data);
@@ -83,19 +46,129 @@ export default function UploadedDocuments() {
   },[]);
 
   const [previewDoc, setPreviewDoc] = useState(null)
-  const [editDoc, setEditDoc] = useState(null)
   const [replaceDoc, setReplaceDoc] = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
 
+  const[showUploadModal, setShowUploadModal] = useState(false);
+  const[uploadCategory,setUploadCategory] = useState("");
+  const[uploadDescription,setUploadDescription]=useState("");
+  const[uploadFile,setUploadFile] = useState(null);
+
   // Summary
   const total = docs.length
-  const verified = docs.filter(d => d.status.toLowerCase().includes('verified')).length
-  const pending = docs.filter(d => d.status.toLowerCase().includes('pending')).length
+  const verified = docs.filter(d => d.status?.toLowerCase()?.includes('verified')).length
+  const pending = docs.filter(d => d.status?.toLowerCase()?.includes('pending')).length
   const lastUpload = 
     docs.length > 0 ? docs.reduce((a,b) => a.uploaded_at > b.uploaded_at ? a:b ).uploaded_at : "N/A";
 
+
+
+  const handleUpload = async () =>{
+
+    if(
+        !uploadFile ||
+        !uploadCategory
+    ){
+        alert("Select category and file");
+        return;
+    }
+
+    const token = localStorage.getItem("accessToken");
+    const formData = new FormData();
+
+    formData.append("category",uploadCategory);
+    formData.append("description",uploadDescription);
+    formData.append("document",uploadFile);
+
+    try{
+        const response = 
+            await fetch(
+                "http://127.0.0.1:8000/api/employee/documents/upload/",
+                {
+                    method:"POST",
+                    headers:{
+                        Authorization:
+                            `Bearer ${token}`
+                    },
+                    body:formData,
+                }
+            );
+        if(response.ok){
+            alert("Document uploaded successfully");
+            window.location.reload();
+        } else {
+            alert("Upload failed");
+        }
+    } catch(error){
+        console.error(error);
+    }
+  };
+
+  const handleReplaceSave = async() => {
+    if(!selectedFile){
+        alert("Please select a PDF");
+        return;
+    }
+
+    const token = localStorage.getItem("accessToken");
+    const formData = new FormData();
+
+    formData.append("document",selectedFile);
+
+    try {
+
+        const response = await fetch(
+                `http://127.0.0.1:8000/api/employee/documents/${replaceDoc.id}/replace/`,
+
+            {
+
+                method:"PUT",
+
+                headers:{
+
+                    Authorization:`Bearer ${token}`,
+
+                },
+
+                body: formData,
+
+            }
+        );
+
+        if(response.ok){
+
+            const updatedDocs = docs.map(doc =>
+                doc.id === replaceDoc.id
+                    ? {
+                        ...doc,
+                        status: "Pending Verification",
+                    }
+                    : doc
+            );
+
+            setDocs(updatedDocs);
+
+            alert("Document replaced successfully");
+
+            setReplaceDoc(null);
+            setSelectedFile(null);
+
+        } else {
+
+            alert("Failed to replace document");
+        }
+
+    } catch(error) {
+
+        console.error(error);
+        alert("Server error");
+    }
+  };
+    
+
   function handleView(doc) {
-    window.open(doc.document_url,"_blank");
+    console.log(doc.document_url);
+    setPreviewDoc(doc);
   }
 
   function handleDownload(doc) {
@@ -108,13 +181,8 @@ export default function UploadedDocuments() {
     setSelectedFile(null)
   }
 
-  function handleEdit(doc) {
-    setEditDoc({ ...doc })
-  }
-
   function closeAll() {
     setPreviewDoc(null)
-    setEditDoc(null)
     setReplaceDoc(null)
     setSelectedFile(null)
   }
@@ -127,6 +195,13 @@ export default function UploadedDocuments() {
         <h1 className="text-2xl font-bold text-slate-900">Uploaded Documents</h1>
         <p className="text-sm text-slate-500">View and manage your uploaded employment documents.</p>
       </div>
+
+      <button onClick={() => setShowUploadModal(true)}
+              className='bg-[#2563eb] text-white px-4 py-2 rounded-full flex items-center gap-2'>
+
+        <FiUpload/>
+        Upload Document
+      </button>
 
       {/* Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -204,7 +279,7 @@ export default function UploadedDocuments() {
             <div className="flex items-center justify-between p-4 border-b">
               <div>
                 <div className="text-sm text-slate-500">Preview</div>
-                <div className="text-lg font-semibold text-slate-900">{previewDoc.name}</div>
+                <div className="text-lg font-semibold text-slate-900">{previewDoc.category}</div>
               </div>
               <div className="flex items-center gap-3">
                 <button onClick={() => handleDownload(previewDoc)} className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-[#2563eb] text-white text-sm">
@@ -214,13 +289,20 @@ export default function UploadedDocuments() {
               </div>
             </div>
             <div className="p-6">
-              <div className="w-full h-[60vh] bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
-                <div className="text-center">
-                  <FaFilePdf className="mx-auto text-red-500 w-12 h-12" />
-                  <div className="mt-4 font-medium text-slate-700">PDF Preview Placeholder</div>
-                  <div className="mt-2 text-sm text-slate-500">Rendering of the PDF will appear here.</div>
-                </div>
-              </div>
+              {/* <p>{previewDoc.document_url}</p> */}
+              {/* <iframe
+                    src={previewDoc.document_url}
+                    title="PDF Preview"
+                    className="w-full h-[60vh] rounded-lg border"
+              /> */}
+              <a
+                    href={previewDoc.document_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-600"
+                    >
+                    Open PDF
+              </a>
             </div>
           </div>
         </div>
@@ -233,7 +315,7 @@ export default function UploadedDocuments() {
           <div className="relative bg-white w-full max-w-xl rounded-3xl shadow-xl overflow-hidden">
             <div className="p-6 border-b">
               <div className="text-lg font-semibold">Replace Document</div>
-              <div className="text-sm text-slate-500">Replace: {replaceDoc.name}</div>
+              <div className="text-sm text-slate-500">Replace: {replaceDoc.category}</div>
             </div>
             <div className="p-6">
               <div
@@ -265,12 +347,99 @@ export default function UploadedDocuments() {
 
               <div className="mt-6 flex items-center justify-end gap-3">
                 <button onClick={() => setReplaceDoc(null)} className="px-4 py-2 rounded-full bg-white border">Cancel</button>
-                <button onClick={() => { alert('Replaced (placeholder)'); setReplaceDoc(null) }} className="px-4 py-2 rounded-full bg-[#2563eb] text-white">Save</button>
+                <button onClick={handleReplaceSave} className="px-4 py-2 rounded-full bg-[#2563eb] text-white">Save</button>
               </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* upload modal */}
+
+      {showUploadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+
+            {/* Background Overlay */}
+            <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowUploadModal(false)}
+            />
+
+            {/* Modal Card */}
+            <div
+            className="relative bg-white p-6 rounded-3xl w-full max-w-xl"
+            onClick={(e) => e.stopPropagation()}
+            >
+
+            <h2 className="text-xl font-semibold">
+                Upload Document
+            </h2>
+
+            <select
+                value={uploadCategory}
+                onChange={(e) =>
+                setUploadCategory(e.target.value)
+                }
+                className="w-full border mt-4 p-3 rounded-xl"
+            >
+                <option value="">Select Category</option>
+                <option value="Resume">Resume</option>
+                <option value="Degree Certificate">
+                Degree Certificate
+                </option>
+                <option value="Experience Certificate">
+                Experience Certificate
+                </option>
+                <option value="Offer Letter">
+                Offer Letter
+                </option>
+            </select>
+
+            <textarea
+                placeholder="Description"
+                value={uploadDescription}
+                onChange={(e) =>
+                setUploadDescription(e.target.value)
+                }
+                className="w-full border mt-4 p-3 rounded-xl"
+            />
+
+            <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) =>
+                setUploadFile(
+                    e.target.files?.[0] || null
+                )
+                }
+                className="mt-4"
+            />
+
+            <div className="flex justify-end gap-3 mt-6">
+
+                <button
+                onClick={() =>
+                    setShowUploadModal(false)
+                }
+                className="border px-4 py-2 rounded-full"
+                >
+                Cancel
+                </button>
+
+                <button
+                onClick={handleUpload}
+                className="bg-[#2563eb] text-white px-4 py-2 rounded-full"
+                >
+                Upload
+                </button>
+
+            </div>
+
+            </div>
+
+        </div>
+        )}
+
     </div>
   )
 }

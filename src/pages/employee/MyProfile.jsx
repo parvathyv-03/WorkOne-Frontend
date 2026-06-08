@@ -53,13 +53,9 @@ export default function MyProfile() {
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-blue-600">Employee Profile</p>
             <h1 className="mt-3 text-3xl font-semibold text-slate-900">My Profile</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+            <p className="mt-2 text-sm leading-6 text-slate-600">
               Manage your profile settings, access personal information, and keep your HR records updated with secure, easy-to-use actions.
             </p>
-          </div>
-          <div className="rounded-3xl bg-slate-900 px-6 py-4 text-white shadow-md shadow-slate-900/10">
-            <p className="text-sm uppercase tracking-[0.25em] text-slate-300">Current Status</p>
-            <p className="mt-2 text-2xl font-semibold text-white">Active Employee</p>
           </div>
         </div>
       </div>
