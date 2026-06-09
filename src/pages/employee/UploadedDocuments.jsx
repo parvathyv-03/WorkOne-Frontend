@@ -289,12 +289,7 @@ export default function UploadedDocuments() {
               </div>
             </div>
             <div className="p-6">
-              {/* <p>{previewDoc.document_url}</p> */}
-              {/* <iframe
-                    src={previewDoc.document_url}
-                    title="PDF Preview"
-                    className="w-full h-[60vh] rounded-lg border"
-              /> */}
+
               <a
                     href={previewDoc.document_url}
                     target="_blank"

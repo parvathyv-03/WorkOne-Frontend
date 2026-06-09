@@ -1,12 +1,5 @@
-import { FaCalendarCheck,
-         FaUserTimes,
-         FaExclamationCircle,
-         FaClock,
-         FaSignInAlt,
-         FaSignOutAlt,
-         FaCalendarAlt,
-         FaChartBar,
-         FaStopwatch } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { FaCalendarCheck,FaUserTimes,FaExclamationCircle,FaClock,FaSignInAlt,FaSignOutAlt,FaCalendarAlt,FaChartBar,FaStopwatch } from "react-icons/fa";
 
 export default function Attendance() {
   const summaryCards = [
@@ -45,18 +38,18 @@ export default function Attendance() {
   ];
 
   const actionCards = [
-    {
-      title: "Mark Check In",
-      icon: (
-        <FaSignInAlt/>
-      ),
-    },
-    {
-      title: "Mark Check Out",
-      icon: (
-        <FaSignOutAlt/>
-      ),
-    },
+    // {
+    //   title: "Mark Check In",
+    //   icon: (
+    //     <FaSignInAlt/>
+    //   ),
+    // },
+    // {
+    //   title: "Mark Check Out",
+    //   icon: (
+    //     <FaSignOutAlt/>
+    //   ),
+    // },
     {
       title: "View Attendance Calendar",
       icon: (
@@ -76,6 +69,112 @@ export default function Attendance() {
       ),
     },
   ];
+
+  const[checkedIn,setCheckedIn] = useState(false);
+  const[checkInTime,setCheckedInTime]=useState(null);
+  const[elapsed,setElapsed]=useState("00:00:00");
+
+  useEffect(() => {
+     const token = localStorage.getItem("accessToken");
+
+     fetch(
+      "http://127.0.0.1:8000/api/attendance/status/",
+      {
+        headers:{
+          Authorization:
+          `Bearer ${token}`
+        }
+      }
+     )
+     .then(res => res.json())
+     .then(data => {
+      setCheckedIn(
+        data.checked_in &&
+        !data.checked_out
+      );
+
+      setCheckedInTime(data.check_in);
+     });
+  },[])
+
+  const handleAttendance =
+  async () => {
+    const token = localStorage.getItem("accessToken");
+    const url = checkedIn
+    ? "attendance/check-out/"
+    :"attendance/check-in/";
+
+    const response =
+    await fetch(
+      `http://127.0.0.1:8000/api/${url}`,
+      {
+        method:"POST",
+        headers:{
+          Authorization:
+          `Bearer ${token}`
+        }
+      }
+    );
+
+    if(response.ok){
+      if(checkedIn){
+        setCheckedIn(false);
+        setCheckedInTime(null);
+      } else {
+        setCheckedIn(true);
+        setCheckedInTime(new Date(data.check_in));
+      }
+    }
+  };
+
+  useEffect(() => {
+
+      if(
+          !checkedIn ||
+          !checkInTime
+      ) return;
+
+      const interval =
+      setInterval(() => {
+
+          const diff =
+          Math.floor(
+              (
+                  new Date() -
+                  new Date(checkInTime)
+              ) / 1000
+          );
+
+          const hours =
+          String(
+              Math.floor(diff/3600)
+          ).padStart(2,"0");
+
+          const minutes =
+          String(
+              Math.floor(
+                  (diff%3600)/60
+              )
+          ).padStart(2,"0");
+
+          const seconds =
+          String(
+              diff%60
+          ).padStart(2,"0");
+
+          setElapsed(
+              `${hours}:${minutes}:${seconds}`
+          );
+
+      },1000);
+
+      return () =>
+          clearInterval(interval);
+
+  },[
+      checkedIn,
+      checkInTime
+  ]);
 
   const recentActivity = [
     { date: "May 28, 2024", checkIn: "09:15 AM", checkOut: "06:45 PM", status: "On Time", hours: "9h 30m" },
@@ -118,6 +217,27 @@ export default function Attendance() {
       {/* Attendance Actions Section */}
       <div>
         <h2 className="mb-6 text-xl font-semibold text-slate-900">Quick Actions</h2>
+         <div className="mb-6">
+            <button
+              onClick={handleAttendance}
+              className={`rounded-3xl px-6 py-4 text-white font-semibold
+              ${
+                checkedIn
+                  ? "bg-red-600"
+                  : "bg-green-600"
+              }`}
+            >
+              {checkedIn
+                ? "Check Out"
+                : "Check In"}
+            </button>
+
+            {checkedIn && (
+              <p className="mt-3 text-lg font-medium text-blue-600">
+                Working Time: {elapsed}
+              </p>
+            )}
+          </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
           {actionCards.map((card) => (
             <button
