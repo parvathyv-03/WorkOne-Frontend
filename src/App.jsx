@@ -14,6 +14,7 @@ import PersonalInfo from "./pages/employee/Personalinfo";
 import UpdateProfile from "./pages/employee/UpdateProfile";
 import ChangePassword from "./pages/employee/ChangePassword";
 import UploadedDocuments from "./pages/employee/UploadedDocuments";
+import MonthlyReport from "./pages/employee/MonthlyReport";
 
 function App() {
   return (
@@ -71,6 +72,10 @@ function App() {
             <Route
               path="attendance"
               element={<Attendance />}
+            />
+            <Route
+              path="/employee/attendance/monthly-report"
+              element={<MonthlyReport />}
             />
 
             <Route

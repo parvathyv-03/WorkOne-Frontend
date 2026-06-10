@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { FaCalendarCheck,FaUserTimes,FaExclamationCircle,FaClock,FaSignInAlt,FaSignOutAlt,FaCalendarAlt,FaChartBar,FaStopwatch } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export default function Attendance() {
+  const navigate = useNavigate();
+
   const summaryCards = [
     {
       title: "Present Days",
@@ -38,34 +41,11 @@ export default function Attendance() {
   ];
 
   const actionCards = [
-    // {
-    //   title: "Mark Check In",
-    //   icon: (
-    //     <FaSignInAlt/>
-    //   ),
-    // },
-    // {
-    //   title: "Mark Check Out",
-    //   icon: (
-    //     <FaSignOutAlt/>
-    //   ),
-    // },
-    {
-      title: "View Attendance Calendar",
-      icon: (
-        <FaCalendarAlt/>
-      ),
-    },
     {
       title: "Monthly Report",
+      path:"/employee/attendance/monthly-report",
       icon: (
         <FaChartBar/>
-      ),
-    },
-    {
-      title: "Work Hour Summary",
-      icon: (
-        <FaStopwatch/>
       ),
     },
   ];
@@ -217,31 +197,45 @@ export default function Attendance() {
       {/* Attendance Actions Section */}
       <div>
         <h2 className="mb-6 text-xl font-semibold text-slate-900">Quick Actions</h2>
-         <div className="mb-6">
-            <button
-              onClick={handleAttendance}
-              className={`rounded-3xl px-6 py-4 text-white font-semibold
-              ${
-                checkedIn
-                  ? "bg-red-600"
-                  : "bg-green-600"
-              }`}
-            >
-              {checkedIn
-                ? "Check Out"
-                : "Check In"}
-            </button>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5 mb-6">
 
-            {checkedIn && (
-              <p className="mt-3 text-lg font-medium text-blue-600">
-                Working Time: {elapsed}
+          <div
+            className="group relative overflow-hidden rounded-3xl bg-white p-8 shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
+            onClick={handleAttendance}
+          >
+            <div className="flex flex-col items-center gap-4">
+
+              <div
+                className={`rounded-2xl p-4 text-white transition duration-300
+                ${
+                  checkedIn
+                    ? "bg-red-600"
+                    : "bg-green-600"
+                }`}
+              >
+                {checkedIn ? (
+                  <FaSignOutAlt />
+                ) : (
+                  <FaSignInAlt />
+                )}
+              </div>
+
+              <p className="text-center text-sm font-semibold text-slate-900">
+                {checkedIn ? "Check Out" : "Check In"}
               </p>
-            )}
+
+              {checkedIn && (
+                <p className="text-xs font-medium text-blue-600">
+                  {elapsed}
+                </p>
+              )}
+
+            </div>
           </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
           {actionCards.map((card) => (
             <button
               key={card.title}
+              onClick={() => navigate(card.path)}
               type="button"
               className="group relative overflow-hidden rounded-3xl bg-white p-8 shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl"
             >
@@ -255,6 +249,7 @@ export default function Attendance() {
               </div>
             </button>
           ))}
+
         </div>
       </div>
 
