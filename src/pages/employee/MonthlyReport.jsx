@@ -8,58 +8,6 @@ const MONTHS = [
 
 const YEARS = ['2024', '2025', '2026']
 
-const summaryCards = [
-  {
-    title: 'Present Days',
-    value: '18',
-    subtitle: 'This month',
-    icon: <FiCheckCircle className="h-5 w-5" />
-  },
-  {
-    title: 'Absent Days',
-    value: '2',
-    subtitle: 'This month',
-    icon: <FiAlertTriangle className="h-5 w-5" />
-  },
-  {
-    title: 'Late Check-ins',
-    value: '5',
-    subtitle: 'This month',
-    icon: <FiClock className="h-5 w-5" />
-  },
-  {
-    title: 'Total Work Hours',
-    value: '164h',
-    subtitle: 'This month',
-    icon: <FiTrendingUp className="h-5 w-5" />
-  }
-]
-
-const stats = [
-  { label: 'Attendance Percentage (Of total working days)', value: '92%'},
-  { label: 'Avg. Check-In Time (Across the month)', value: '09:12 AM' },
-  { label: 'Avg. Check-Out Time (Across the month)', value: '06:35 PM'},
-  { label: 'Total Working Hours (Including regular hours)', value: '164h' },
-  { label: 'Overtime Hours (Extra logged time)', value: '12h' },
-  { label: 'Late Arrivals (Counted this month)', value: '5' }
-]
-
-const insights = [
-  { label: 'Best Attendance Streak', value: '12 days' },
-  { label: 'Total Present Days', value: '18 days' },
-  { label: 'Total Absent Days', value: '2 days' },
-  { label: 'Total Late Arrivals', value: '5 times' }
-]
-
-const reportRows = [
-  { date: '2026-05-01', day: 'Mon', checkIn: '09:05 AM', checkOut: '06:30 PM', workHours: '9h 25m', status: 'Present' },
-  { date: '2026-05-02', day: 'Tue', checkIn: '09:18 AM', checkOut: '06:40 PM', workHours: '9h 22m', status: 'Late' },
-  { date: '2026-05-03', day: 'Wed', checkIn: '09:00 AM', checkOut: '06:20 PM', workHours: '9h 20m', status: 'Present' },
-  { date: '2026-05-04', day: 'Thu', checkIn: '-', checkOut: '-', workHours: '-', status: 'Absent' },
-  { date: '2026-05-05', day: 'Fri', checkIn: '09:10 AM', checkOut: '06:35 PM', workHours: '9h 25m', status: 'Present' },
-  { date: '2026-05-06', day: 'Sat', checkIn: '09:25 AM', checkOut: '02:00 PM', workHours: '4h 35m', status: 'Half Day' }
-]
-
 function statusStyles(status) {
   const base = 'inline-flex rounded-full px-3 py-1 text-xs font-semibold'
   if (status === 'Present') return `${base} bg-emerald-100 text-emerald-700`
@@ -124,14 +72,77 @@ export default function MonthlyReport() {
   const [selectedMonth, setSelectedMonth] = useState('May')
   const [selectedYear, setSelectedYear] = useState('2026')
   const [isLoading, setIsLoading] = useState(false)
-  const [rows, setRows] = useState(reportRows)
+  const [rows, setRows] = useState([])
 
-  const handleGenerate = () => {
+  const [summary,setSummary] = useState({
+    present_days:0,
+    absent_days:0,
+    late_days:0,
+    total_hours:0
+  });
+
+  const [stats,setStats] = useState([]);
+  const [insights,setInsights] = useState([]);
+
+  const summaryCards = [
+    {
+      title: 'Present Days',
+      value: summary.present_days,
+      subtitle: 'This month',
+      icon: <FiCheckCircle className="h-5 w-5" />
+    },
+    {
+      title: 'Absent Days',
+      value: summary.absent_days,
+      subtitle: 'This month',
+      icon: <FiAlertTriangle className="h-5 w-5" />
+    },
+    {
+      title: 'Late Check-ins',
+      value: summary.late_days,
+      subtitle: 'This month',
+      icon: <FiClock className="h-5 w-5" />
+    },
+    {
+      title: 'Total Work Hours',
+      value: summary.total_hours,
+      subtitle: 'This month',
+      icon: <FiTrendingUp className="h-5 w-5" />
+    }
+  ]
+
+
+  const handleGenerate = async () => {
     setIsLoading(true)
-    setTimeout(() => {
-      setIsLoading(false)
-      setRows(reportRows)
-    }, 600)
+    const token = localStorage.getItem("accessToken");
+
+    const monthNumber = MONTHS.indexOf(selectedMonth) + 1;
+
+    try {
+      const response =await fetch(
+        `http://127.0.0.1:8000/api/attendance/monthly-report/?month=${monthNumber}&year=${selectedYear}`,
+        {
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      const data = await response.json();
+      // const text = await response.text();
+      console.log(data)
+
+      setRows(data.rows);
+      setSummary(data.summary);
+      setStats(data.stats);
+      setInsights(data.insights);
+      console.log(data);
+
+    } catch(error){
+      console.error(error);
+    }
+
+    setIsLoading(false);
   }
 
   const handleExport = (type) => {
@@ -171,7 +182,33 @@ export default function MonthlyReport() {
 
           <div className="grid gap-6 xl:grid-cols-[150fr]">
                 <div className="rounded-3xl bg-white p-8 shadow-md">
-  
+                    {/* Attendance Statistics */}
+                    <div>
+                        <p className="text-xl font-semibold text-slate-900 text-center">
+                        Attendance Statistics
+                        </p>
+
+                        <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        {stats.map((item) => (
+                            <div
+                            key={item.label}
+                            className="rounded-3xl border border-slate-100 bg-slate-50 p-5"
+                            >
+                            <p className="text-sm text-slate-500">
+                                {item.label}
+                            </p>
+
+                            <p className="mt-3 text-3xl font-semibold text-slate-900">
+                                {item.value}
+                            </p>
+                            </div>
+                        ))}
+                      </div>
+                    
+
+                    {/* Divider */}
+                    <div className="my-8 border-t border-slate-200"></div>
+
                     {/* Report Filters */}
                     <div className="flex flex-col items-center text-center">
                         <p className="text-xl font-semibold text-slate-900">
@@ -215,32 +252,6 @@ export default function MonthlyReport() {
                         Generate Report
                         </button>
                     </div>
-
-                    {/* Divider */}
-                    <div className="my-8 border-t border-slate-200"></div>
-
-                    {/* Attendance Statistics */}
-                    <div>
-                        <p className="text-xl font-semibold text-slate-900 text-center">
-                        Attendance Statistics
-                        </p>
-
-                        <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        {stats.map((item) => (
-                            <div
-                            key={item.label}
-                            className="rounded-3xl border border-slate-100 bg-slate-50 p-5"
-                            >
-                            <p className="text-sm text-slate-500">
-                                {item.label}
-                            </p>
-
-                            <p className="mt-3 text-3xl font-semibold text-slate-900">
-                                {item.value}
-                            </p>
-                            </div>
-                        ))}
-                        </div>
                     </div>
 
                 </div>
