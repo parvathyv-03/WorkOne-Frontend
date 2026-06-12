@@ -300,6 +300,8 @@ export default function Attendance() {
             const isPresent = isCurrentMonth && Math.random() > 0.15;
             const isAbsent = isCurrentMonth && !isPresent && Math.random() > 0.7;
 
+            const [calendarData,setCalendarData] = useState([]);
+
             return (
               <div
                 key={index}
