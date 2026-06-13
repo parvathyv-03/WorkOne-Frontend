@@ -1,67 +1,121 @@
 import { MdBeachAccess, MdLocalHospital, MdWorkOutline } from "react-icons/md";
 import { HiOutlineDocumentText, HiOutlineClock, HiOutlineUserGroup } from "react-icons/hi";
+import { useEffect,useState } from "react";
 
 export default function LeaveManagement() {
-  const summaryItems = [
-    {
-      title: "Casual Leave Remaining",
-      value: "8 Days",
-      description: "Flexible leave balance",
-      icon: <MdBeachAccess className="h-6 w-6" />,
-      iconBg: "bg-blue-100 text-blue-600",
+  const [summaryItems, setSummaryItems] = useState([]);
+  const [trackerStats, setTrackerStats] = useState([]);
+  const [historyItems, setHistoryItems] = useState([]);
+
+  const [leaveType,setLeaveType] = useState("Casual Leave");
+  const [startDate,setStartDate] = useState("");
+  const [endDate,setEndDate] = useState("");
+  const [reason,setReason] = useState("");
+
+  useEffect(() => {
+    fetchLeaveData();
+  },[]);
+
+  const fetchLeaveData = async () => {
+    const token = localStorage.getItem("accessToken");
+
+    const response =
+    await fetch(
+      "http://127.0.0.1:8000/api/leave/dashboard/",{
+        headers:{
+          Authorization:
+          `Bearer ${token}`
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    setSummaryItems(data.summary);
+    setTrackerStats([
+      {
+        label:"Pending",
+        value: data.tracker.pending,
+        badge: "bg-yellow-100 text-yellow-700",
+      },
+      {
+      label: "Approved",
+      value: data.tracker.approved,
+      badge: "bg-emerald-100 text-emerald-700",
+      },
+      {
+        label: "Rejected",
+        value: data.tracker.rejected,
+        badge: "bg-red-100 text-red-700",
+      },
+    ]);
+    setHistoryItems(data.history);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem("accessToken");
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/leave/apply/",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          Authorization:`Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          leave_type:leaveType,
+          start_date:startDate,
+          end_date:endDate,
+          reason:reason,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if(response.ok){
+      alert("Leave applied succesfully.");
+
+      setLeaveType("");
+      setStartDate("");
+      setEndDate("");
+      setReason("");
+
+      fetchLeaveData();
+    }else{
+      alert(data.error);
+    }
+  };
+
+  const getStatusColor = (status) => {
+    if(status === "Approved")
+      return "bg-emerald-100 text-emerald-700"
+
+    if(status === "Rejected")
+      return "bg-red-100 text-red-700"
+
+    return "bg-yellow-100 text-yellow-700";
+  };
+
+  const iconMap = {
+    "Casual Leave Remaining":{
+      icon:<MdBeachAccess className="h-6 w-6"/>,
+      iconBg:"bg-blue-100 text-blue-600",
     },
-    {
-      title: "Sick Leave Remaining",
-      value: "5 Days",
-      description: "For medical leave",
-      icon: <MdLocalHospital className="h-6 w-6" />,
-      iconBg: "bg-cyan-100 text-cyan-600",
+     "Sick Leave Remaining": {
+    icon: <MdLocalHospital className="h-6 w-6" />,
+    iconBg: "bg-cyan-100 text-cyan-600",
     },
-    {
-      title: "Privilege Leave Remaining",
-      value: "12 Days",
-      description: "Planned leave quota",
+    "Privilege Leave Remaining": {
       icon: <MdWorkOutline className="h-6 w-6" />,
       iconBg: "bg-slate-100 text-slate-800",
     },
-  ];
+  };
 
-  const trackerStats = [
-    { label: "Pending", value: "3", badge: "bg-yellow-100 text-yellow-700" },
-    { label: "Approved", value: "14", badge: "bg-emerald-100 text-emerald-700" },
-    { label: "Rejected", value: "1", badge: "bg-red-100 text-red-700" },
-  ];
 
-  const historyItems = [
-    {
-      type: "Casual Leave",
-      date: "May 22, 2026",
-      duration: "2 days",
-      status: "Approved",
-      statusColor: "bg-emerald-100 text-emerald-700",
-    },
-    {
-      type: "Sick Leave",
-      date: "May 10, 2026",
-      duration: "1 day",
-      status: "Approved",
-      statusColor: "bg-emerald-100 text-emerald-700",
-    },
-    {
-      type: "Privilege Leave",
-      date: "Apr 28, 2026",
-      duration: "5 days",
-      status: "Pending",
-      statusColor: "bg-yellow-100 text-yellow-700",
-    },
-    {
-      type: "Casual Leave",
-      date: "Apr 12, 2026",
-      duration: "1 day",
-      status: "Rejected",
-      statusColor: "bg-red-100 text-red-700",
-    },
-  ];
 
   return (
     <div className="space-y-8  text-slate-900">
@@ -79,19 +133,29 @@ export default function LeaveManagement() {
             key={item.title}
             className="group rounded-3xl bg-white p-6 shadow-md transition hover:-translate-y-1 hover:shadow-xl"
           >
-            <div className="flex items-center justify-between gap-4">
-              <div className={`inline-flex h-14 w-14 items-center justify-center rounded-3xl ${item.iconBg}`}>
-                {item.icon}
+            <div className="flex items-center justify-between">
+              <div
+                className={`flex h-14 w-14 items-center justify-center rounded-3xl ${
+                    iconMap[item.title]?.iconBg
+                }`}
+              >
+                {iconMap[item.title]?.icon}
               </div>
-              <span className="rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                {item.title.split(" ")[0]}
-              </span>
-            </div>
-            <div className="mt-6">
-              <p className="text-3xl font-semibold text-slate-900">{item.value}</p>
-              <p className="mt-2 text-sm text-slate-600">{item.description}</p>
-            </div>
+
+               <span className="rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  {item.title.split(" ")[0]}
+               </span>
           </div>
+          <div className="mt-6">
+            <p className="text-3xl font-bold text-slate-900">
+              {item.value} Days
+            </p>
+
+            <p className="mt-2 text-sm text-slate-600">
+              {item.description}
+            </p>
+          </div>
+        </div>
         ))}
       </div>
 
@@ -118,7 +182,7 @@ export default function LeaveManagement() {
                     </div>
                     <div className="flex items-center gap-4 text-sm text-slate-700">
                         <div className="rounded-2xl bg-white px-4 py-2 shadow-sm">{item.duration}</div>
-                        <div className={`rounded-2xl px-4 py-2 text-sm font-semibold ${item.statusColor}`}>{item.status}</div>
+                        <div className={`rounded-2xl px-4 py-2 text-sm font-semibold ${getStatusColor(item.status)}`}>{item.status}</div>
                     </div>
                     </div>
                 ))}
@@ -167,11 +231,11 @@ export default function LeaveManagement() {
             </div>
           </div>
 
-          <form className="mt-8 space-y-6">
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="grid gap-6 md:grid-cols-2">
               <label className="space-y-2 text-sm text-slate-700">
                 Leave Type
-                <select className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white">
+                <select value={leaveType} onChange={(e) => setLeaveType(e.target.value)} className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white">
                   <option>Casual Leave</option>
                   <option>Sick Leave</option>
                   <option>Privilege Leave</option>
@@ -179,18 +243,18 @@ export default function LeaveManagement() {
               </label>
               <label className="space-y-2 text-sm text-slate-700">
                 Start Date
-                <input type="date" className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white" />
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white" />
               </label>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
               <label className="space-y-2 text-sm text-slate-700">
                 End Date
-                <input type="date" className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white" />
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white" />
               </label>
               <label className="space-y-2 text-sm text-slate-700">
                 Reason
-                <textarea rows="3" className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white" placeholder="Enter the reason for your leave request." />
+                <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows="3" className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white" placeholder="Enter the reason for your leave request." />
               </label>
             </div>
 

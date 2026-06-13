@@ -5,41 +5,6 @@ import { useNavigate } from "react-router-dom";
 export default function Attendance() {
   const navigate = useNavigate();
 
-  const summaryCards = [
-    {
-      title: "Present Days",
-      value: "18",
-      subtitle: "This month",
-      icon: (
-        <FaCalendarCheck/>
-      ),
-    },
-    {
-      title: "Absent Days",
-      value: "2",
-      subtitle: "This month",
-      icon: (
-        <FaUserTimes/>
-      ),
-    },
-    {
-      title: "Late Check-ins",
-      value: "5",
-      subtitle: "This month",
-      icon: (
-        <FaExclamationCircle/>
-      ),
-    },
-    {
-      title: "Total Work Hours",
-      value: "164h",
-      subtitle: "This month",
-      icon: (
-        <FaClock/>
-      ),
-    },
-  ];
-
   const actionCards = [
     {
       title: "Monthly Report",
@@ -53,6 +18,97 @@ export default function Attendance() {
   const[checkedIn,setCheckedIn] = useState(false);
   const[checkInTime,setCheckedInTime]=useState(null);
   const[elapsed,setElapsed]=useState("00:00:00");
+
+  const [calendarData,setCalendarData] = useState([]);
+  const [recentActivity,setRecentActivity] = useState([])
+  const [summary,setSummary] = useState(null);
+
+    const summaryCards = [
+    {
+      title: "Present Days",
+      value: summary?.present_days || 0,
+      subtitle: "This month",
+      icon: (
+        <FaCalendarCheck/>
+      ),
+    },
+    {
+      title: "Absent Days",
+      value: summary?.absent_days || 0,
+      subtitle: "This month",
+      icon: (
+        <FaUserTimes/>
+      ),
+    },
+    {
+      title: "Late Check-ins",
+      value: summary?.late_days || 0,
+      subtitle: "This month",
+      icon: (
+        <FaExclamationCircle/>
+      ),
+    },
+    {
+      title: "Total Work Hours",
+      value: `${summary?.total_hours || 0}h`,
+      subtitle: "This month",
+      icon: (
+        <FaClock/>
+      ),
+    },
+  ];
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+
+    fetch(
+      "http://127.0.0.1:8000/api/attendance/calendar/",{
+        headers:{
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    .then((res) => res.json())
+    .then((data) => setCalendarData(data));
+  },[]);
+
+  useEffect(() => {
+    const token = 
+    localStorage.getItem("accessToken");
+
+    fetch(
+      "http://127.0.0.1:8000/api/attendance/recent/",
+      {
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      }
+    )
+
+    .then(res => res.json())
+    .then(data => setRecentActivity(data));
+  },[]);
+
+  
+
+  useEffect(() => {
+    const token =
+    localStorage.getItem("accessToken");
+
+    fetch(
+      "http://127.0.0.1:8000/api/attendance/summary/",
+      {
+        headers:{
+          Authorization:
+          `Bearer ${token}`
+        }
+      }
+    )
+
+    .then(res => res.json())
+    .then(data => setSummary(data));
+  },[]);
+
 
   useEffect(() => {
      const token = localStorage.getItem("accessToken");
@@ -95,6 +151,8 @@ export default function Attendance() {
         }
       }
     );
+
+    const data = await response.json();
 
     if(response.ok){
       if(checkedIn){
@@ -156,13 +214,6 @@ export default function Attendance() {
       checkInTime
   ]);
 
-  const recentActivity = [
-    { date: "May 28, 2024", checkIn: "09:15 AM", checkOut: "06:45 PM", status: "On Time", hours: "9h 30m" },
-    { date: "May 27, 2024", checkIn: "09:45 AM", checkOut: "07:10 PM", status: "Late", hours: "9h 25m" },
-    { date: "May 26, 2024", checkIn: "09:00 AM", checkOut: "06:30 PM", status: "On Time", hours: "9h 30m" },
-    { date: "May 25, 2024", checkIn: "09:20 AM", checkOut: "06:55 PM", status: "On Time", hours: "9h 35m" },
-    { date: "May 24, 2024", checkIn: "10:15 AM", checkOut: "07:30 PM", status: "Late", hours: "9h 15m" },
-  ];
 
   return (
     <div className="space-y-8  text-slate-900">
@@ -297,22 +348,19 @@ export default function Attendance() {
           {Array.from({ length: 35 }).map((_, index) => {
             const day = index - 2;
             const isCurrentMonth = day > 0 && day <= 31;
-            const isPresent = isCurrentMonth && Math.random() > 0.15;
-            const isAbsent = isCurrentMonth && !isPresent && Math.random() > 0.7;
-
-            const [calendarData,setCalendarData] = useState([]);
+            const status = calendarData[day];
 
             return (
               <div
                 key={index}
-                className={`flex h-12 items-center justify-center rounded-lg text-sm font-medium transition ${
-                  !isCurrentMonth
-                    ? "text-slate-300"
-                    : isPresent
+                className={`flex h-12 items-center justify-center rounded-lg text-sm font-medium  ${
+                   status === "Present"
                       ? "bg-green-100 text-green-700"
-                      : isAbsent
-                        ? "bg-red-100 text-red-700"
-                        : "bg-slate-100 text-slate-600"
+                      : status === "Late"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : status === "Absent"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-slate-100 text-slate-600"
                 }`}
               >
                 {isCurrentMonth ? day : ""}
