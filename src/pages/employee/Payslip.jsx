@@ -1,37 +1,62 @@
 import { HiOutlineDownload, HiOutlineDocumentText, HiOutlineReceiptTax, HiOutlineCash, HiOutlineShieldCheck, HiOutlineSparkles, HiOutlineBadgeCheck } from "react-icons/hi";
 import { FaChartLine } from "react-icons/fa";
 
-const summaryData = [
-  { label: "Net Salary", value: "Rs.49,500", icon: <HiOutlineCash className="h-6 w-6" /> },
-  { label: "Basic Salary", value: "Rs.45,000", icon: <HiOutlineDocumentText className="h-6 w-6" /> },
-  { label: "Total Earnings", value: "Rs.58,000", icon: <FaChartLine className="h-6 w-6" /> },
-  { label: "Total Deductions", value: "Rs.8,500", icon: <HiOutlineReceiptTax className="h-6 w-6" /> },
-  { label: "Current Month", value: "May 2026", icon: <HiOutlineBadgeCheck className="h-6 w-6" /> },
-];
-
-const actionCards = [
-  { title: "Download Payslip PDF", icon: <HiOutlineDownload className="h-7 w-7" /> },
-  { title: "View Salary History", icon: <HiOutlineDocumentText className="h-7 w-7" /> },
-  { title: "View Deductions", icon: <HiOutlineReceiptTax className="h-7 w-7" /> },
-  { title: "View Bonuses", icon: <HiOutlineSparkles className="h-7 w-7" /> },
-];
-
-const recentPayslips = [
-  { month: "May 2026", net: "Rs.49,500", status: "Paid", statusColor: "bg-emerald-100 text-emerald-700" },
-  { month: "April 2026", net: "Rs.48,800", status: "Paid", statusColor: "bg-emerald-100 text-emerald-700" },
-  { month: "March 2026", net: "Rs.47,900", status: "Paid", statusColor: "bg-emerald-100 text-emerald-700" },
-  { month: "February 2026", net: "Rs.47,200", status: "Pending", statusColor: "bg-yellow-100 text-yellow-700" },
-];
-
-const deductionsBonuses = [
-  { label: "Tax", amount: "Rs.5,000" },
-  { label: "PF", amount: "Rs.2,000" },
-  { label: "Insurance", amount: "Rs.1,300" },
-  { label: "Performance Bonus", amount: "Rs.1,000" },
-  { label: "Other Allowances", amount: "Rs.1,500" },
-];
+import { useState,useEffect } from "react";
 
 export default function Payslip() {
+  const [summaryData,setSummaryData]  = useState([]);
+  const [recentPayslips,setRecentPayslips] = useState([]);
+  const [deductionsBonuses,setDeductionBonuses] = useState([]);
+
+  useEffect(() => {
+    fetchPayslipData();
+  },[]);
+
+  const fetchPayslipData = async () => {
+    const token = localStorage.getItem("accessToken");
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/payslip/dashboard/",
+      {
+        headers:{
+          Authorization:`Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    setSummaryData(data.summary);
+    setRecentPayslips(data.payslips);
+    setDeductionBonuses(data.deductions);
+  }
+
+  const getStatusColor = (status) => {
+    if (status === "Paid") {
+      return "bg-emerald-100 text-emerald-700";
+    }
+
+    return "bg-yellow-100 text-yellow-700";
+  };
+
+  const iconMap = {
+    "Net Salary": <HiOutlineCash className="h-6 w-6"/>,
+    "Basic Salary": <HiOutlineDocumentText className="h-6 w-6"/>,
+    "Total Earnings": <FaChartLine className="h-6 w-6"/>,
+    "Total Deductions": <HiOutlineReceiptTax className="h-6 w-6"/>,
+    "Current Month": <HiOutlineBadgeCheck className="h-6 w-6"/>,
+  }
+
+  const formatCurrency = (amount) => {
+    return `₹${Number(amount).toLocaleString("en-IN")}`;
+  };
+
+  const handleDownload = (pdfUrl) => {
+    window.open(
+      `http://127.0.0.1:8000${pdfUrl}`,
+      "_blank"
+    );
+  };
   return (
     <div className="space-y-8  text-slate-900">
       <div className="rounded-3xl bg-white p-8 shadow-md">
@@ -47,29 +72,20 @@ export default function Payslip() {
           <div key={item.label} className="rounded-3xl bg-white p-6 shadow-md transition hover:shadow-xl">
             <div className="flex items-center justify-between gap-4">
               <div className="inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-50 text-blue-600">
-                {item.icon}
+                {iconMap[item.label]}
               </div>
               <span className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">{item.label}</span>
             </div>
-            <p className="mt-6 text-3xl font-semibold text-slate-900">{item.value}</p>
+            <p className="mt-6 text-3xl font-semibold text-slate-900">
+              {item.label === "Current Month"
+                ? item.value
+                : formatCurrency(item.value)}
+            </p>
           </div>
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-4">
-        {actionCards.map((action) => (
-          <button
-            key={action.title}
-            type="button"
-            className="group rounded-3xl bg-white p-6 text-left shadow-md transition duration-300 hover:-translate-y-0.5 hover:shadow-xl"
-          >
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-100">
-              {action.icon}
-            </div>
-            <p className="mt-6 text-base font-semibold text-slate-900 transition group-hover:text-blue-600">{action.title}</p>
-          </button>
-        ))}
-      </div>
+      
 
       <div className="grid gap-6 xl:grid-cols-[2fr_1fr]">
         <div className="rounded-3xl bg-white p-8 shadow-md">
@@ -95,14 +111,17 @@ export default function Payslip() {
                 {recentPayslips.map((item) => (
                   <tr key={item.month} className="hover:bg-slate-50">
                     <td className="px-4 py-4 font-semibold text-slate-900">{item.month}</td>
-                    <td className="px-4 py-4">{item.net}</td>
+                    <td className="px-4 py-4">{formatCurrency(item.net)}</td>
                     <td className="px-4 py-4">
-                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${item.statusColor}`}>
+                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(item.status)}`}>
                         {item.status}
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <button className="inline-flex items-center gap-2 rounded-3xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700">
+                      <button 
+                        disabled={!item.pdf_url}
+                        onClick={() => handleDownload(item.pdf_url)}
+                        className="inline-flex items-center gap-2 rounded-3xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700">
                         <HiOutlineDownload className="h-4 w-4" /> Download
                       </button>
                     </td>
@@ -136,7 +155,7 @@ export default function Payslip() {
                     <p className="text-sm text-slate-500">{item.label === "Other Allowances" ? "Additional monthly allowance" : ""}</p>
                   </div>
                 </div>
-                <p className="text-lg font-semibold text-slate-900">{item.amount}</p>
+                <p className="text-lg font-semibold text-slate-900">{formatCurrency(item.amount)}</p>
               </div>
             ))}
           </div>
