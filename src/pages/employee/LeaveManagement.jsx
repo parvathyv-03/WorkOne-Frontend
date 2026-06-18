@@ -39,9 +39,9 @@ export default function LeaveManagement() {
         badge: "bg-yellow-100 text-yellow-700",
       },
       {
-      label: "Approved",
-      value: data.tracker.approved,
-      badge: "bg-emerald-100 text-emerald-700",
+        label: "Approved",
+        value: data.tracker.approved,
+        badge: "bg-emerald-100 text-emerald-700",
       },
       {
         label: "Rejected",
@@ -105,9 +105,9 @@ export default function LeaveManagement() {
       icon:<MdBeachAccess className="h-6 w-6"/>,
       iconBg:"bg-blue-100 text-blue-600",
     },
-     "Sick Leave Remaining": {
-    icon: <MdLocalHospital className="h-6 w-6" />,
-    iconBg: "bg-cyan-100 text-cyan-600",
+    "Sick Leave Remaining": {
+      icon: <MdLocalHospital className="h-6 w-6" />,
+      iconBg: "bg-cyan-100 text-cyan-600",
     },
     "Privilege Leave Remaining": {
       icon: <MdWorkOutline className="h-6 w-6" />,

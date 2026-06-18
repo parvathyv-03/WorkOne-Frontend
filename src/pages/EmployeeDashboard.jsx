@@ -1,16 +1,37 @@
-
-import {
-        FaClock,
-        FaCalendarAlt,
-        FaExclamationCircle,
-        FaMoneyCheckAlt,
-} from "react-icons/fa";
-import { useState } from "react";
+import {FaClock,FaCalendarAlt,FaExclamationCircle,FaMoneyCheckAlt,} from "react-icons/fa";
+import { useState,useEffect } from "react";
 
 export default function EmployeeDashboard(){
     const username = localStorage.getItem("username")
 
     const [activeMenu,setActiveMenu] = useState("dashboard");
+    const [dashboardData,setDashboardData] = useState(null);
+
+    useEffect(() => {
+        fetchDashboardData();
+    },[]);
+
+    const fetchDashboardData = async () => {
+        const token = localStorage.getItem("accessToken");
+
+        const response = await fetch(
+            "http://127.0.0.1:8000/api/employee/dashboard/",
+            {
+                headers:{
+                    Authorization:`Bearer ${token}`,
+                },
+            }
+        );
+
+        if (!response.ok){
+            console.error("Dashboard API failed");
+            return;
+        }
+
+        const data = await response.json();
+        setDashboardData(data);
+    };
+
     return(
         <div className="flex">
             
@@ -32,11 +53,11 @@ export default function EmployeeDashboard(){
                                     </p>
 
                                     <h2 className="mt-2 text-3xl font-bold text-gray-800">
-                                        Present
+                                        {dashboardData?.attendance?.status}
                                     </h2>
 
                                     <p className="mt-2 text-sm text-gray-400">
-                                        Check-in : 9:12 AM
+                                        Check-in : {dashboardData?.attendance?.check_in}
                                     </p>
                                 </div>
 
@@ -57,7 +78,7 @@ export default function EmployeeDashboard(){
                                     </p>
 
                                     <h2 className="mt-2 text-3xl font-bold text-gray-800">
-                                        12 Days
+                                        {dashboardData?.leave?.total} Days
                                     </h2>
 
                                     <p className="mt-2 text-sm text-gray-400">
@@ -81,7 +102,7 @@ export default function EmployeeDashboard(){
                                     </p>
 
                                     <h2 className="mt-2 text-3xl font-bold text-gray-800">
-                                        2 Pending
+                                        {dashboardData?.complaints?.pending} Pending
                                     </h2>
 
                                     <p className="mt-2 text-sm text-gray-400">
@@ -106,12 +127,8 @@ export default function EmployeeDashboard(){
                                     </p>
 
                                     <h2 className="mt-2 text-3xl font-bold text-gray-800">
-                                        April 2026
+                                        {dashboardData?.payslip?.month}
                                     </h2>
-
-                                    <p className="mt-2 text-sm text-blue-500">
-                                        View Payslip
-                                    </p>
                                 </div>
 
                                 <div className="rounded-2xl bg-purple-100 p-4 text-3xl text-purple-600">
@@ -132,7 +149,7 @@ export default function EmployeeDashboard(){
                                         <div className="flex h-40 w-40 items-center justify-center rounded-full border-8 border-blue-500">
                                             <div className="text-center">
                                                 <h1 className="text-4xl font-bold text-gray-800">
-                                                    20
+                                                    {dashboardData?.attendance?.days_present}
                                                 </h1>
 
                                                 <p className="text-gray-500">
@@ -169,7 +186,7 @@ export default function EmployeeDashboard(){
                                         </div>
 
                                         <h1 className="text-xl font-bold text-blue-700">
-                                            6 Days
+                                            {dashboardData?.leave?.casual} Days
                                         </h1>
                                     </div>
 
@@ -185,7 +202,7 @@ export default function EmployeeDashboard(){
                                         </div>
 
                                         <h1 className="text-xl font-bold text-green-600">
-                                            3 Days
+                                            {dashboardData?.leave?.sick} Days
                                         </h1>
                                     </div>
 
@@ -201,50 +218,44 @@ export default function EmployeeDashboard(){
                                         </div>
 
                                         <h1 className="text-xl font-bold text-orange-500">
-                                            3 Days
+                                            {dashboardData?.leave?.privilege} Days
                                         </h1>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* upcoming events */}
-
                             <div className="rounded-3xl bg-white p-6 shadow-md">
                                 <h2 className="mb-6 text-2xl font-bold text-gray-800">
-                                    Upcoming Events
+                                    Announcements
                                 </h2>
 
                                 <div className="space-y-5">
 
-                                    <div className="rounded-2xl bg-gray-50 p-4">
-                                        <h3 className="font-semibold text-gray-800">
-                                            Team Meeting
-                                        </h3>
+                                    {dashboardData?.announcements?.length > 0 ? (
+                                        dashboardData.announcements.map((item) => (
+                                            <div
+                                                key={item.id}
+                                                className="rounded-2xl bg-blue-50 p-5"
+                                            >
+                                                <h3 className="font-semibold text-blue-700">
+                                                    {item.title}
+                                                </h3>
 
-                                        <p className="mt-1 text-sm text-gray-400">
-                                            May 20 | 10:00 AM
+                                                <p className="mt-2 text-sm leading-6 text-gray-600">
+                                                    {item.description}
+                                                </p>
+
+                                                <p className="mt-2 text-xs text-gray-400">
+                                                    {new Date(item.created_at).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-gray-500">
+                                            No announcements available.
                                         </p>
-                                    </div>
+                                    )}
 
-                                    <div className="rounded-2xl bg-gray-50 p-4">
-                                        <h3 className="font-semibold text-gray-800">
-                                            Project Deadline
-                                        </h3>
-
-                                        <p className="mt-1 text-sm text-gray-400">
-                                            May 22 | End of day
-                                        </p>
-                                    </div>
-
-                                    <div className="rounded-2xl bg-gray-50 p-4">
-                                        <h3 className="font-semibold text-gray-800">
-                                            HR Policy Update
-                                        </h3>
-
-                                        <p className="mt-1 text-sm text-gray-400">
-                                            May 25 | 2:00 PM
-                                        </p>
-                                    </div>
                                 </div>
                             </div>
                     </div>
@@ -252,94 +263,7 @@ export default function EmployeeDashboard(){
                     {/* THIRD SECTION */}
 
                     <div className="mt-10 grid grid-cols-1 gap-6 xl:grid-cols-2">
-                        {/* RECENT ACTIVITIES */}
-
-                        <div className="rounded-3xl bg-white p-6 shadow-md">
-
-                            <h2 className="mb-6 text-2xl font-bold text-gray-800">
-                                Recent Activities
-                            </h2>
-
-                            <div className="space-y-5">
-
-                                <div className="flex items-start gap-4 border-b pb-4">
-
-                                    <div className="mt-1 h-3 w-3 rounded-full bg-green-500"></div>
-
-                                    <div>
-                                        <p className="font-medium text-gray-700">
-                                            Your leave request has been approved.
-                                        </p>
-
-                                        <p className="text-sm text-gray-400">
-                                            2 Hours ago.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-4 border-b pb-4">
-                                    <div className="mt-1 h-3 w-3 rounded-full bg-blue-500"></div>
-
-                                        <div>
-                                            <p className="font-medium text-gray-700">
-                                                You checked in at 9:12 AM.
-                                            </p>
-
-                                            <p className="text-sm text-gray-400">
-                                                Today
-                                            </p>
-                                        </div>
-                                </div>
-                                    
-
-                                    <div className="flex items-start gap-4">
-
-                                        <div className="mt-1 h-3 w-3 rounded-full bg-orange-500"></div>
-
-                                        <div>
-                                            <p className="font-medium text-gray-700">
-                                                New payslip is available.
-                                            </p>
-
-                                            <p className="text-sm text-gray-400">
-                                                Yesterday
-                                            </p>
-                                        </div>
-                                    </div>
-                                
-                            </div>
-                        </div>
-                            {/* announcements */}
-
-                            <div className="rounded-3xl bg-white p-6 shadow-md">
-
-                                <h2 className="mb-6 text-2xl font-bold text-gray-800">
-                                    Announcements
-                                </h2>
-
-                                <div className="space-y-5">
-                                    <div className="rounded-2xl bg-blue-50 p-5">
-
-                                        <h3 className="font-semibold text-blue-700">
-                                            Holiday Notice
-                                        </h3>
-
-                                        <p className="mt-2 text-sm leading-6 text-gray-600">
-                                            Office will remain closed on May 26 due to public holiday.
-                                        </p>
-                                    </div>
-
-                                    <div className="rounded-2xl bg-green-50 p-5">
-                                        <h3 className="font-semibold text-green-700">
-                                            Health Checkup Camp
-                                        </h3>
-
-                                        <p className="mt-2 text-sm leading-6 text-gray-600">
-                                            Free employee health checkup camp on May 30.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+                        
                         
                     </div>
                 </div>

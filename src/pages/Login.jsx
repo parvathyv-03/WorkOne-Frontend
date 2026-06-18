@@ -28,6 +28,8 @@ export default function Login(){
             );
             console.log(response.data);
 
+            const role = response.data.role;
+
             // save token
             localStorage.setItem(
                 "accessToken",
@@ -39,9 +41,14 @@ export default function Login(){
                 response.data.username
             );
 
-            if(response.data.role === "employee"){
+            localStorage.setItem("role",role);
+
+            if(role === "employee"){
                 // navigate to employee dashboard
                 navigate("/employee/dashboard");
+            }
+            else if(role === "hr"){
+                navigate("/hr/dashboard");
             }
             
         }catch(error){

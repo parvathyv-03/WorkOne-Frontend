@@ -15,6 +15,7 @@ import UpdateProfile from "./pages/employee/UpdateProfile";
 import ChangePassword from "./pages/employee/ChangePassword";
 import UploadedDocuments from "./pages/employee/UploadedDocuments";
 import MonthlyReport from "./pages/employee/MonthlyReport";
+import HRDashboard from "./pages/hr/HRDashboard";
 
 function App() {
   return (
@@ -25,6 +26,10 @@ function App() {
           <Route
             path="/"
             element={<Login />}
+          />
+          <Route
+              path="/hr/dashboard"
+              element={<HRDashboard/>}
           />
 
           {/* EMPLOYEE LAYOUT */}
