@@ -7,6 +7,7 @@ import Complaints from "./pages/employee/Complaints";
 import Payslip from './pages/employee/Payslip';
 import Notifications from './pages/employee/Notifications';
 import EmployeeLayout from "./layouts/EmployeeLayout";
+import HRLayout from "./layouts/HRLayout";
 
 import { BrowserRouter,Routes,Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -15,7 +16,16 @@ import UpdateProfile from "./pages/employee/UpdateProfile";
 import ChangePassword from "./pages/employee/ChangePassword";
 import UploadedDocuments from "./pages/employee/UploadedDocuments";
 import MonthlyReport from "./pages/employee/MonthlyReport";
+
 import HRDashboard from "./pages/hr/HRDashboard";
+import ManageEmployees from "./pages/hr/ManageEmployees";
+import Leave from "./pages/hr/Leave";
+import AttendanceTracking from "./pages/hr/AttendanceTracking";
+import ComplaintManagement from "./pages/hr/ComplaintManagement";
+import PayslipManagement from "./pages/hr/PayslipManagement";
+import Recruitment from "./pages/hr/Recruitment";
+import ReportsAnalytics from "./pages/hr/ReportsAnalytics";
+import Notification from "./pages/hr/Notification";
 
 function App() {
   return (
@@ -27,10 +37,56 @@ function App() {
             path="/"
             element={<Login />}
           />
+
+          {/* HR Layout */}
           <Route
+            path="/hr"
+            element={
+              <ProtectedRoute>
+                <HRLayout />
+              </ProtectedRoute>
+            }
+          >
+            {/* CHILD ROUTES */}
+
+            <Route
               path="/hr/dashboard"
               element={<HRDashboard/>}
-          />
+            />
+            <Route
+              path="/hr/employees"
+              element={<ManageEmployees/>}
+            />
+            <Route
+              path="/hr/leave"
+              element={<Leave/>}
+            />
+            <Route
+              path="/hr/attendance"
+              element={<AttendanceTracking/>}
+            />
+            <Route
+              path="/hr/complaints"
+              element={<ComplaintManagement/>}
+            />
+            <Route
+              path="/hr/payslip"
+              element={<PayslipManagement/>}
+            />
+            <Route
+              path="/hr/recruitment"
+              element={<Recruitment/>}
+            />
+            <Route
+              path="/hr/reports"
+              element={<ReportsAnalytics/>}
+            />
+            <Route
+              path="/hr/notification"
+              element={<Notification/>}
+            />
+            
+          </Route>
 
           {/* EMPLOYEE LAYOUT */}
           <Route
