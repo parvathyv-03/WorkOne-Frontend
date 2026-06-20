@@ -250,11 +250,6 @@ export default function ComplaintManagement() {
     <div className="space-y-8 px-6 py-8">
       {/* Page Title Section */}
       <div>
-        <div className="mb-2 inline-block rounded-full bg-[#F4F0FB] px-4 py-1">
-          <p className="text-sm font-semibold text-[#36136E]">
-            Complaint Management
-          </p>
-        </div>
         <h1 className="mb-2 text-4xl font-bold text-slate-900">
           Manage Employee Complaints
         </h1>

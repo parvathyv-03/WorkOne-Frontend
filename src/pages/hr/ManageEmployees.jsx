@@ -251,10 +251,6 @@ export default function ManageEmployees() {
           <FaFileDownload className="text-lg" />
           Export Employees
         </button>
-        <button className="flex items-center gap-2 rounded-2xl border-2 border-[#36136E] px-6 py-3 font-semibold text-[#36136E] transition-all duration-300 hover:bg-[#F4F0FB]">
-          <FaFileExcel className="text-lg" />
-          Generate Report
-        </button>
       </div>
 
       {/* Search and Filter Section */}

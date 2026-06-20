@@ -1,13 +1,298 @@
-export default function Notification() {
-    return (
-        <div className="p-8">
-            <h1 className="text-4xl font-bold text-[#36136E]">
-                Notifications
-            </h1>
+import { useState } from "react";
+import {
+  FaBell,
+  FaBullhorn,
+  FaClipboardList,
+  FaCalendarAlt,
+  FaExclamationCircle,
+  FaCheckCircle,
+  FaRegBell,
+  FaRegCalendarAlt,
+  FaRegPaperPlane,
+  FaTimes,
+} from "react-icons/fa";
 
-            <p className="mt-2 text-gray-500">
-                Manage system notifications and alerts.
-            </p>
+const summaryData = [
+  {
+    title: "Total Notifications",
+    count: "42",
+    icon: FaBell,
+    accent: "bg-[#F4F0FB] text-[#36136E]",
+  },
+  {
+    title: "HR Announcements",
+    count: "14",
+    icon: FaBullhorn,
+    accent: "bg-[#F4F0FB] text-[#36136E]",
+  },
+  {
+    title: "Leave Updates",
+    count: "11",
+    icon: FaCalendarAlt,
+    accent: "bg-[#F4F0FB] text-[#36136E]",
+  },
+  {
+    title: "Complaint Updates",
+    count: "7",
+    icon: FaExclamationCircle,
+    accent: "bg-[#F4F0FB] text-[#36136E]",
+  },
+];
+
+const notificationsList = [
+  {
+    title: "Annual Performance Review Schedule",
+    category: "HR Announcement",
+    priority: "High",
+    date: "June 19, 2026",
+    status: "Published",
+    message:
+      "Please review the updated schedule for the annual performance assessments and prepare your team accordingly.",
+    icon: FaRegCalendarAlt,
+  },
+  {
+    title: "New Leave Policy Update",
+    category: "Leave Update",
+    priority: "Medium",
+    date: "June 14, 2026",
+    status: "Draft",
+    message:
+      "A new leave policy has been introduced for flexible work arrangements. Check the details and share feedback.",
+    icon: FaCalendarAlt,
+  },
+  {
+    title: "Payroll Processing Reminder",
+    category: "System Notification",
+    priority: "Low",
+    date: "June 12, 2026",
+    status: "Published",
+    message:
+      "Payroll processing begins tomorrow. Ensure all time sheets and reimbursements are submitted by end of day.",
+    icon: FaRegPaperPlane,
+  },
+  {
+    title: "Complaint Resolution Update",
+    category: "Complaint Update",
+    priority: "High",
+    date: "June 10, 2026",
+    status: "Published",
+    message:
+      "The latest complaint resolution cases have been reviewed and updates are now available for affected employees.",
+    icon: FaClipboardList,
+  },
+];
+
+const categoryOptions = [
+  "HR Announcement",
+  "System Notification",
+  "Leave Update",
+  "Complaint Update",
+];
+
+const priorityOptions = ["Low", "Medium", "High"];
+
+const badgeStyles = {
+  Published: "bg-emerald-100 text-emerald-700",
+  Draft: "bg-amber-100 text-amber-700",
+};
+
+export default function Notification() {
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState(categoryOptions[0]);
+  const [priority, setPriority] = useState("Low");
+  const [message, setMessage] = useState("");
+  const [preview, setPreview] = useState(notificationsList[0]);
+
+  const handleClear = () => {
+    setTitle("");
+    setCategory(categoryOptions[0]);
+    setPriority("Low");
+    setMessage("");
+  };
+
+  return (
+    <div className="space-y-8 px-6 py-8 font-sans text-slate-900" style={{ fontFamily: "Poppins, sans-serif" }}>
+      <div className="rounded-3xl bg-white p-8 shadow-md">
+        <div className="max-w-4xl space-y-4">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#36136E]/70">
+            Notification Management
+          </p>
+          <h1 className="text-4xl font-bold text-slate-900">Employee Notifications</h1>
+          <p className="max-w-3xl text-sm text-slate-600 leading-7">
+            Create and manage announcements, alerts, and updates that will be visible to employees.
+          </p>
         </div>
-    );
+      </div>
+
+      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        {summaryData.map((item) => (
+          <div
+            key={item.title}
+            className="rounded-3xl bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+          >
+            <div className={`inline-flex h-14 w-14 items-center justify-center rounded-3xl ${item.accent}`}>
+              <item.icon className="text-lg" />
+            </div>
+            <p className="mt-5 text-sm font-semibold text-slate-500">{item.title}</p>
+            <p className="mt-4 text-3xl font-bold text-slate-900">{item.count}</p>
+            <div className="mt-3 rounded-3xl bg-[#F7F4FF] px-3 py-2 text-xs font-medium text-[#36136E]">
+              Updated 2 days ago
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-3">
+        <div className="xl:col-span-2 rounded-3xl bg-white p-6 shadow-md">
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900">Create New Notification</h2>
+              <p className="mt-2 text-sm text-slate-500">
+                Publish a new message for employees with priority and category settings.
+              </p>
+            </div>
+            <div className="inline-flex items-center gap-2 rounded-3xl bg-[#F4F0FB] px-4 py-2 text-sm font-semibold text-[#36136E]">
+              <FaBullhorn /> New Post
+            </div>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-2">
+            <label className="space-y-2">
+              <span className="text-sm font-medium text-slate-700">Notification Title</span>
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter notification title"
+                className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#36136E] focus:bg-white"
+              />
+            </label>
+
+            <label className="space-y-2">
+              <span className="text-sm font-medium text-slate-700">Category</span>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#36136E] focus:bg-white"
+              >
+                {categoryOptions.map((option) => (
+                  <option key={option}>{option}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="lg:col-span-2 space-y-2">
+              <span className="text-sm font-medium text-slate-700">Message</span>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={6}
+                placeholder="Write the notification message for employees..."
+                className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none transition focus:border-[#36136E] focus:bg-white"
+              />
+            </label>
+
+            <label className="space-y-2">
+              <span className="text-sm font-medium text-slate-700">Priority</span>
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#36136E] focus:bg-white"
+              >
+                {priorityOptions.map((option) => (
+                  <option key={option}>{option}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <button className="inline-flex items-center justify-center rounded-3xl bg-[#36136E] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#2c0f5d]">
+              <FaCheckCircle className="mr-2" /> Publish Notification
+            </button>
+            <button
+              onClick={handleClear}
+              className="inline-flex items-center justify-center rounded-3xl border border-slate-300 bg-slate-50 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-[#36136E] hover:text-[#36136E]"
+            >
+              <FaTimes className="mr-2" /> Clear Form
+            </button>
+          </div>
+        </div>
+
+        <div className="rounded-3xl bg-[#F9F7FF] p-6 shadow-md">
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Notification Preview</h2>
+              <p className="mt-2 text-sm text-slate-500">How the message will appear in the employee dashboard.</p>
+            </div>
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-[#E9E0FF] text-[#36136E]">
+              <FaRegBell className="text-lg" />
+            </div>
+          </div>
+
+          <div className="space-y-5 rounded-[2rem] border border-[#E6E0F6] bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-4">
+              <div className="inline-flex items-center gap-3 rounded-3xl bg-[#F4F0FB] px-4 py-2 text-sm font-semibold text-[#36136E]">
+                <FaBullhorn /> {preview.category}
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-slate-900">{preview.title}</h3>
+            <p className="text-sm leading-7 text-slate-600">{preview.message}</p>
+            <div className="flex items-center justify-between text-sm text-slate-500">
+              <span>{preview.date}</span>
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#ECFDF5] px-3 py-1 text-xs font-semibold text-emerald-700">
+                <FaCheckCircle /> {preview.status}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-6">
+        <div className="rounded-3xl bg-white p-6 shadow-md">
+          <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900">Recent Notifications</h2>
+              <p className="mt-2 text-sm text-slate-500">Latest employee announcements and system alerts.</p>
+            </div>
+            <div className="inline-flex items-center gap-3 rounded-3xl bg-[#F4F0FB] px-4 py-2 text-sm font-semibold text-[#36136E]">
+              <FaClipboardList /> {notificationsList.length} Entries
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm text-slate-600">
+              <thead>
+                <tr className="border-b border-slate-200 text-slate-500">
+                  <th className="px-4 py-3">Title</th>
+                  <th className="px-4 py-3">Category</th>
+                  <th className="px-4 py-3">Priority</th>
+                  <th className="px-4 py-3">Date</th>
+                  <th className="px-4 py-3">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {notificationsList.map((item) => (
+                  <tr
+                    key={item.title}
+                    className="border-b border-slate-100 transition duration-300 hover:bg-[#F4F0FB] cursor-pointer"
+                    onClick={() => setPreview(item)}
+                  >
+                    <td className="px-4 py-4 text-slate-900 font-medium">{item.title}</td>
+                    <td className="px-4 py-4">{item.category}</td>
+                    <td className="px-4 py-4">{item.priority}</td>
+                    <td className="px-4 py-4">{item.date}</td>
+                    <td className="px-4 py-4">
+                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badgeStyles[item.status]}`}>
+                        {item.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
