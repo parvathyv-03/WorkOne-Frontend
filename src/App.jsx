@@ -18,7 +18,7 @@ import UploadedDocuments from "./pages/employee/UploadedDocuments";
 import MonthlyReport from "./pages/employee/MonthlyReport";
 
 import HRDashboard from "./pages/hr/HRDashboard";
-import ManageEmployees from "./pages/hr/ManageEmployees";
+import ManageEmployees from "./pages/hr/AddEmployee";
 import Leave from "./pages/hr/Leave";
 import AttendanceTracking from "./pages/hr/AttendanceTracking";
 import ComplaintManagement from "./pages/hr/ComplaintManagement";
@@ -26,6 +26,8 @@ import PayslipManagement from "./pages/hr/PayslipManagement";
 import Recruitment from "./pages/hr/Recruitment";
 import ReportsAnalytics from "./pages/hr/ReportsAnalytics";
 import Notification from "./pages/hr/Notification";
+import ManageEmployeesHome from "./pages/hr/ManageEmployeesHome";
+import ViewUploadedDocuments from "./pages/hr/ViewUploadedDocuments";
 
 function App() {
   return (
@@ -42,7 +44,7 @@ function App() {
           <Route
             path="/hr"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRole="HR">
                 <HRLayout />
               </ProtectedRoute>
             }
@@ -55,7 +57,15 @@ function App() {
             />
             <Route
               path="/hr/employees"
+              element={<ManageEmployeesHome/>}
+            />
+            <Route
+              path="/hr/employees/addemployee"
               element={<ManageEmployees/>}
+            />
+            <Route
+              path="/hr/employees/uploadeddocuments"
+              element={<ViewUploadedDocuments/>}
             />
             <Route
               path="/hr/leave"
@@ -92,7 +102,7 @@ function App() {
           <Route
             path="/employee"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRole="Employee">
                 <EmployeeLayout />
               </ProtectedRoute>
             }

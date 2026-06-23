@@ -25,7 +25,7 @@ export default function HRSidebar() {
       icon: <FaHome />,
     },
     {
-      name: "Manage Employees",
+      name: "Employee Management",
       path: "/hr/employees",
       icon: <FaUsers />,
     },
