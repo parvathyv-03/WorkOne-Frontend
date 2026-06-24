@@ -5,12 +5,6 @@ import { FaUsers, FaFolderOpen } from "react-icons/fa";
 export default function ManageEmployeesHome() {
   const navigate = useNavigate();
 
-  const stats = {
-    total: 0,
-    active: 0,
-    documents: 0,
-  };
-
   return (
     <div className="min-h-screen bg-[#F4F0FB] p-6 md:p-10">
       <div className="max-w-7xl mx-auto">

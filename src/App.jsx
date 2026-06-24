@@ -28,6 +28,7 @@ import ReportsAnalytics from "./pages/hr/ReportsAnalytics";
 import Notification from "./pages/hr/Notification";
 import ManageEmployeesHome from "./pages/hr/ManageEmployeesHome";
 import ViewUploadedDocuments from "./pages/hr/ViewUploadedDocuments";
+import CreateEmployee from "./pages/hr/CreateEmployee";
 
 function App() {
   return (
@@ -62,6 +63,10 @@ function App() {
             <Route
               path="/hr/employees/addemployee"
               element={<ManageEmployees/>}
+            />
+            <Route
+              path="/hr/employees/addemployee/createemployee"
+              element={<CreateEmployee/>}
             />
             <Route
               path="/hr/employees/uploadeddocuments"

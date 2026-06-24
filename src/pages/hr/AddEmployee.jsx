@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaUsers,
   FaUserCheck,
@@ -25,6 +26,8 @@ export default function ManageEmployees() {
   const [selectedDesignation, setSelectedDesignation] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+  const navigate = useNavigate();
 
   // Summary Cards Data
   const summaryCards = [
@@ -243,7 +246,7 @@ export default function ManageEmployees() {
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-4">
-        <button className="flex items-center gap-2 rounded-2xl bg-[#36136E] px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-[#4A1D96] hover:shadow-lg">
+        <button onClick={() => navigate("/hr/employees/addemployee/createemployee")} className="flex items-center gap-2 rounded-2xl bg-[#36136E] px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-[#4A1D96] hover:shadow-lg">
           <FaPlus className="text-lg" />
           Add Employee
         </button>
