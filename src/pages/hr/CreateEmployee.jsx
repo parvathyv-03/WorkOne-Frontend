@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaUser,
@@ -45,7 +45,6 @@ const initialForm = {
   emergency_alternate_number: "",
 };
 
-const roles = ["Employee", "HR"];
 const departments = ["IT", "HR", "Finance", "Marketing", "Operations", "Administration"];
 const employeeTypes = ["Full Time", "Part Time", "Contract", "Intern"];
 const genders = ["Male", "Female", "Other"];
@@ -254,18 +253,15 @@ export default function CreateEmployee() {
                 {errors.confirmPassword && <p className="mt-1 text-xs text-red-600">{errors.confirmPassword}</p>}
               </div>
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">Role *</label>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">Role</label>
                 <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-[#F4F0FB] px-3 py-2">
                   <FaUserShield className="text-[#36136E]" />
-                  <select
+                  <input
+                    type="text"
                     value={form.role}
-                    onChange={(e) => updateField("role", e.target.value)}
-                    className="w-full bg-transparent text-sm outline-none"
-                  >
-                    {roles.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
+                    readOnly
+                    className="w-full bg-transparent text-sm outline-none text-slate-600"
+                  />
                 </div>
               </div>
             </div>

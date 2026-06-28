@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaUsers,
@@ -29,133 +29,47 @@ export default function ManageEmployees() {
 
   const navigate = useNavigate();
 
+      // Employee Table Data
+  const [employees,setEmployees] = useState([]);
+
+  useEffect(() => {
+    fetchEmployees();
+  },[]);
+
   // Summary Cards Data
   const summaryCards = [
-    { title: "Total Employees", value: "124", icon: FaUsers },
-    { title: "Active Employees", value: "118", icon: FaUserCheck },
-    { title: "New Joiners This Month", value: "7", icon: FaUserPlus },
-    { title: "Departments", value: "7", icon: FaBuilding },
+    { title: "Total Employees", value: employees.length, icon: FaUsers },
+    { title: "Active Employees", value: employees.length, icon: FaUserCheck },
+    { title: "New Joiners This Month", value: employees.length, icon: FaUserPlus },
+    { title: "Departments", value: employees.length , icon: FaBuilding },
   ];
 
-  // Employee Table Data
-  const employees = [
-    {
-      id: "EMP001",
-      name: "John David",
-      email: "john.david@workone.com",
-      department: "IT",
-      designation: "Senior Developer",
-      joiningDate: "2022-03-15",
-      status: "Active",
-      avatar: "JD",
-    },
-    {
-      id: "EMP002",
-      name: "Sarah Williams",
-      email: "sarah.williams@workone.com",
-      department: "HR",
-      designation: "HR Manager",
-      joiningDate: "2021-06-20",
-      status: "Active",
-      avatar: "SW",
-    },
-    {
-      id: "EMP003",
-      name: "Michael Johnson",
-      email: "michael.johnson@workone.com",
-      department: "Finance",
-      designation: "Finance Manager",
-      joiningDate: "2020-01-10",
-      status: "Active",
-      avatar: "MJ",
-    },
-    {
-      id: "EMP004",
-      name: "Emily Brown",
-      email: "emily.brown@workone.com",
-      department: "Marketing",
-      designation: "Marketing Executive",
-      joiningDate: "2023-02-14",
-      status: "Active",
-      avatar: "EB",
-    },
-    {
-      id: "EMP005",
-      name: "David Martinez",
-      email: "david.martinez@workone.com",
-      department: "IT",
-      designation: "Junior Developer",
-      joiningDate: "2024-01-08",
-      status: "Active",
-      avatar: "DM",
-    },
-    {
-      id: "EMP006",
-      name: "Jessica Anderson",
-      email: "jessica.anderson@workone.com",
-      department: "Operations",
-      designation: "Operations Lead",
-      joiningDate: "2021-09-05",
-      status: "Inactive",
-      avatar: "JA",
-    },
-    {
-      id: "EMP007",
-      name: "Robert Taylor",
-      email: "robert.taylor@workone.com",
-      department: "Finance",
-      designation: "Accountant",
-      joiningDate: "2022-07-18",
-      status: "Active",
-      avatar: "RT",
-    },
-    {
-      id: "EMP008",
-      name: "Lisa White",
-      email: "lisa.white@workone.com",
-      department: "HR",
-      designation: "Recruiter",
-      joiningDate: "2023-08-22",
-      status: "Active",
-      avatar: "LW",
-    },
-  ];
+  const fetchEmployees = async () => {
+    const token = localStorage.getItem("access");
 
-  // Recent Employees Data
-  const recentEmployees = [
-    {
-      id: "EMP009",
-      name: "Christopher Lee",
-      department: "IT",
-      joiningDate: "2024-06-10",
-      status: "Active",
-      avatar: "CL",
-    },
-    {
-      id: "EMP010",
-      name: "Amanda Clark",
-      department: "Marketing",
-      joiningDate: "2024-06-05",
-      status: "Active",
-      avatar: "AC",
-    },
-    {
-      id: "EMP011",
-      name: "Thomas Harris",
-      department: "Operations",
-      joiningDate: "2024-05-28",
-      status: "Active",
-      avatar: "TH",
-    },
-    {
-      id: "EMP012",
-      name: "Margaret Martin",
-      department: "Finance",
-      joiningDate: "2024-05-15",
-      status: "Active",
-      avatar: "MM",
-    },
-  ];
+
+    const response = await fetch("http://127.0.0.1:8000/api/hr/employees/",{
+      headers:{
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if(response.ok){
+      setEmployees(data);
+    }else{
+      setEmployees([]);
+    }
+  };
+
+  const recentEmployees = [...employees]
+    .sort(
+      (a,b) => 
+        new Date(b.date_of_joining) - new Date(a.date_of_joining)
+    )
+    .slice(0,5);
 
   // Departments
   const departments = [
@@ -186,9 +100,12 @@ export default function ManageEmployees() {
   // Filtered employees
   const filteredEmployees = employees.filter((emp) => {
     const matchesSearch =
-      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${emp.first_name} ${emp.last_name}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.id.toLowerCase().includes(searchTerm.toLowerCase());
+      emp.employee_id.toLowerCase().includes(searchTerm.toLowerCase());
+
 
     const matchesDepartment =
       selectedDepartment === "" ||
@@ -389,17 +306,17 @@ export default function ManageEmployees() {
             <tbody>
               {filteredEmployees.map((employee) => (
                 <tr
-                  key={employee.id}
+                  key={employee.employee_id}
                   className="border-b border-slate-100 transition-all duration-300 hover:bg-[#F4F0FB]"
                   onClick={() => setSelectedEmployee(employee)}
                 >
                   <td className="px-4 py-4 text-sm font-semibold text-slate-900">
-                    {employee.id}
+                    {employee.employee_id}
                   </td>
                   <td className="px-4 py-4 text-sm text-slate-900">
                     <div className="flex items-center gap-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#36136E] text-xs font-bold text-white">
-                        {employee.avatar}
+                        {employee.first_name[0]}
                       </div>
                       {employee.name}
                     </div>
@@ -414,7 +331,7 @@ export default function ManageEmployees() {
                     {employee.designation}
                   </td>
                   <td className="px-4 py-4 text-sm text-slate-600">
-                    {new Date(employee.joiningDate).toLocaleDateString(
+                    {new Date(employee.date_of_joining).toLocaleDateString(
                       "en-US",
                       { year: "numeric", month: "short", day: "numeric" }
                     )}
@@ -453,14 +370,14 @@ export default function ManageEmployees() {
         <div className="space-y-4 md:hidden">
           {filteredEmployees.map((employee) => (
             <div
-              key={employee.id}
+              key={employee.employee_id}
               className="rounded-2xl border border-slate-200 p-4 transition-all duration-300 hover:border-[#36136E] hover:shadow-md"
               onClick={() => setSelectedEmployee(employee)}
             >
               <div className="mb-3 flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#36136E] text-sm font-bold text-white">
-                    {employee.avatar}
+                    {employee.first_name[0]}
                   </div>
                   <div>
                     <p className="font-semibold text-slate-900">
@@ -611,7 +528,7 @@ export default function ManageEmployees() {
           <div className="space-y-3">
             {recentEmployees.map((emp) => (
               <div
-                key={emp.id}
+                key={emp.employee_id}
                 className="rounded-2xl bg-[#F4F0FB] p-3 transition-all duration-300 hover:shadow-md"
               >
                 <div className="mb-2 flex items-center gap-2">
