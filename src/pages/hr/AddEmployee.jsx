@@ -64,6 +64,21 @@ export default function ManageEmployees() {
     }
   };
 
+  const handleExport = async () => {
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/hr/employees/export-pdf/",
+      {
+        headers:{
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    window.open(url,"_blank");
+  }
+
   const recentEmployees = [...employees]
     .sort(
       (a,b) => 
@@ -75,7 +90,7 @@ export default function ManageEmployees() {
   const departments = [
     "All Departments",
     "IT",
-    "HR",
+    "Human Resources",
     "Finance",
     "Marketing",
     "Operations",
@@ -92,6 +107,7 @@ export default function ManageEmployees() {
     "Accountant",
     "Marketing Executive",
     "Operations Lead",
+    "Developer",
   ];
 
   // Statuses
@@ -167,7 +183,7 @@ export default function ManageEmployees() {
           <FaPlus className="text-lg" />
           Add Employee
         </button>
-        <button className="flex items-center gap-2 rounded-2xl border-2 border-[#36136E] px-6 py-3 font-semibold text-[#36136E] transition-all duration-300 hover:bg-[#F4F0FB]">
+        <button onClick={handleExport} className="flex items-center gap-2 rounded-2xl border-2 border-[#36136E] px-6 py-3 font-semibold text-[#36136E] transition-all duration-300 hover:bg-[#F4F0FB]">
           <FaFileDownload className="text-lg" />
           Export Employees
         </button>
@@ -315,10 +331,10 @@ export default function ManageEmployees() {
                   </td>
                   <td className="px-4 py-4 text-sm text-slate-900">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#36136E] text-xs font-bold text-white">
-                        {employee.first_name[0]}
+                      <div className="flex h-8 w-8 items-center justify-center text-xs font-bold">
+                        {employee.first_name}
                       </div>
-                      {employee.name}
+                      {employee.first_name} {employee.last_name}
                     </div>
                   </td>
                   <td className="px-4 py-4 text-sm text-slate-600">
@@ -383,7 +399,7 @@ export default function ManageEmployees() {
                     <p className="font-semibold text-slate-900">
                       {employee.name}
                     </p>
-                    <p className="text-xs text-slate-500">{employee.id}</p>
+                    <p className="text-xs text-slate-500">{employee.employee_id}</p>
                   </div>
                 </div>
                 <span
@@ -435,11 +451,12 @@ export default function ManageEmployees() {
             <div className="space-y-4">
               <div className="mb-6 flex items-center gap-4">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#36136E] text-2xl font-bold text-white">
-                  {selectedEmployee.avatar}
+                  {selectedEmployee.first_name[0]}
+                  {selectedEmployee.last_name[0]}
                 </div>
                 <div>
                   <p className="text-xl font-bold text-slate-900">
-                    {selectedEmployee.name}
+                    {`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
                   </p>
                   <p className="text-sm text-slate-600">
                     {selectedEmployee.designation}
@@ -453,7 +470,7 @@ export default function ManageEmployees() {
                     Employee ID
                   </p>
                   <p className="font-semibold text-slate-900">
-                    {selectedEmployee.id}
+                    {selectedEmployee.employee_id}
                   </p>
                 </div>
                 <div className="rounded-2xl bg-[#F4F0FB] p-4">
@@ -479,7 +496,7 @@ export default function ManageEmployees() {
                   </p>
                   <p className="flex items-center gap-2 font-semibold text-slate-900">
                     <FaCalendarAlt className="text-[#36136E]" />
-                    {new Date(selectedEmployee.joiningDate).toLocaleDateString(
+                    {new Date(selectedEmployee.date_of_joining).toLocaleDateString(
                       "en-US",
                       { year: "numeric", month: "short", day: "numeric" }
                     )}
@@ -533,15 +550,15 @@ export default function ManageEmployees() {
               >
                 <div className="mb-2 flex items-center gap-2">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#36136E] text-xs font-bold text-white">
-                    {emp.avatar}
+                    {emp.first_name[0]}
                   </div>
                   <p className="text-sm font-semibold text-slate-900">
-                    {emp.name}
+                    {emp.first_name} {emp.last_name}
                   </p>
                 </div>
                 <p className="mb-1 text-xs text-slate-600">{emp.department}</p>
                 <p className="mb-2 text-xs text-slate-500">
-                  {new Date(emp.joiningDate).toLocaleDateString("en-US", {
+                  {new Date(emp.date_of_joining).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "short",
                     day: "numeric",
