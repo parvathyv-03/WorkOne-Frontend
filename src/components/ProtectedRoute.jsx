@@ -11,13 +11,13 @@ export default function ProtectedRoute({children,allowedRole,}) {
     }
 
     if(role !== allowedRole){
-        if(role === "Employee"){
+        if(role === "employee"){
             return (
                 <Navigate to="/employee/dashboard"/>
             );
         }
 
-        if(role === "HR"){
+        if(role === "hr"){
             return(
                 <Navigate to="/hr/dashboard"/>
             );

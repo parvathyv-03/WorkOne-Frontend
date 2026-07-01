@@ -45,7 +45,7 @@ function App() {
           <Route
             path="/hr"
             element={
-              <ProtectedRoute allowedRole="HR">
+              <ProtectedRoute allowedRole="hr">
                 <HRLayout />
               </ProtectedRoute>
             }
@@ -107,7 +107,7 @@ function App() {
           <Route
             path="/employee"
             element={
-              <ProtectedRoute allowedRole="Employee">
+              <ProtectedRoute allowedRole="employee">
                 <EmployeeLayout />
               </ProtectedRoute>
             }
