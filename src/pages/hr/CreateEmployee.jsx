@@ -113,53 +113,74 @@ export default function CreateEmployee() {
     setLoading(true);
     setAlertMessage("");
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
+
+    const employeeData = {
+        username: form.username,
+        password: form.password,
+        employee_id: form.employee_id,
+        first_name: form.first_name,
+        last_name: form.last_name,
+        email: form.email,
+        date_of_birth: form.date_of_birth,
+        gender: form.gender,
+        marital_status: form.marital_status,
+        mobile_number: form.mobile_number,
+        alternate_number: form.alternate_number,
+        current_address: form.current_address,
+        permanent_address: form.permanent_address,
+        department: form.department,
+        designation: form.designation,
+        employee_type: form.employee_type,
+        date_of_joining: form.date_of_joining,
+        reporting_manager: form.reporting_manager,
+        emergency_contact_name: form.emergency_contact_name,
+        emergency_relationship: form.emergency_relationship,
+        emergency_contact_number: form.emergency_contact_number,
+        emergency_alternate_number: form.emergency_alternate_number,
+    };
+
+    console.log(employeeData);
+    console.log(token);
+    console.log("Sending request...");
+
     try {
-      const response = await fetch("/api/hr/create-employee/", {
+      const response = await fetch("http://127.0.0.1:8000/api/hr/create-employee/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          username: form.username,
-          password: form.password,
-          employee_id: form.employee_id,
-          first_name: form.first_name,
-          last_name: form.last_name,
-          email: form.email,
-          date_of_birth: form.date_of_birth,
-          gender: form.gender,
-          marital_status: form.marital_status,
-          mobile_number: form.mobile_number,
-          alternate_number: form.alternate_number,
-          current_address: form.current_address,
-          permanent_address: form.permanent_address,
-          department: form.department,
-          designation: form.designation,
-          employee_type: form.employee_type,
-          date_of_joining: form.date_of_joining,
-          reporting_manager: form.reporting_manager,
-          emergency_contact_name: form.emergency_contact_name,
-          emergency_relationship: form.emergency_relationship,
-          emergency_contact_number: form.emergency_contact_number,
-          emergency_alternate_number: form.emergency_alternate_number,
-        }),
+        body: JSON.stringify(employeeData),
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        const message = errorData?.detail || "Failed to create employee. Please try again.";
-        throw new Error(message);
+        const errorData = await response.json();
+
+        const formattedErrors = {};
+
+        Object.keys(errorData).forEach((key) => {
+          formattedErrors[key] = errorData[key][0];
+        });
+
+        setErrors(formattedErrors);
+
+        return;
       }
 
+      const result = await response.json();
+
       setAlertType("success");
-      setAlertMessage("Employee created successfully.");
+      setAlertMessage(result.message);
+
       handleReset();
+
       setTimeout(() => {
         navigate("/hr/employees");
-      }, 1000);
+      }, 1500);
     } catch (error) {
+      console.error(error);
+
       setAlertType("error");
       setAlertMessage(error.message || "Unable to create employee.");
     } finally {

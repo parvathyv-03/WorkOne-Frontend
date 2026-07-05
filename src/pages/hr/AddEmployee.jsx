@@ -36,16 +36,31 @@ export default function ManageEmployees() {
     fetchEmployees();
   },[]);
 
+  const totalDepartments = new Set(
+    employees.map(emp => emp.department)
+  ).size;
+
+  const today = new Date();
+
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(today.getMonth() - 1);
+
+  const newJoinersCount = employees.filter(emp => {
+    const joiningDate = new Date(emp.date_of_joining);
+
+    return joiningDate >= oneMonthAgo &&
+            joiningDate <= today;
+  }).length;
+
   // Summary Cards Data
   const summaryCards = [
     { title: "Total Employees", value: employees.length, icon: FaUsers },
-    { title: "Active Employees", value: employees.length, icon: FaUserCheck },
     { title: "New Joiners This Month", value: employees.length, icon: FaUserPlus },
-    { title: "Departments", value: employees.length , icon: FaBuilding },
+    { title: "Departments", value: totalDepartments, icon: FaBuilding },
   ];
 
   const fetchEmployees = async () => {
-    const token = localStorage.getItem("access");
+    const token = localStorage.getItem("accessToken");
 
 
     const response = await fetch("http://127.0.0.1:8000/api/hr/employees/",{
@@ -61,6 +76,44 @@ export default function ManageEmployees() {
       setEmployees(data);
     }else{
       setEmployees([]);
+    }
+  };
+
+  const deleteEmployee = async(id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this employee?"
+    );
+
+    if(!confirmDelete) return;
+
+    const token = localStorage.getItem("accessToken");
+
+    try{
+
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/hr/employees/${employee.id}/`,
+        {
+          method:"DELETE",
+          headers:{
+            Authorization:`Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if(!response.ok){
+        alert(data.message || "Unable to delete employee.");
+        return;
+      }
+
+      alert(data.message)
+
+      await fetchEmployees();
+
+    } catch(error){
+      console.error(error);
+      alert("Something went wrong.");
     }
   };
 
@@ -89,29 +142,17 @@ export default function ManageEmployees() {
   // Departments
   const departments = [
     "All Departments",
-    "IT",
-    "Human Resources",
-    "Finance",
-    "Marketing",
-    "Operations",
+    ...new Set(employees.map(emp => emp.department))
   ];
 
   // Designations
   const designations = [
     "All Designations",
-    "Senior Developer",
-    "Junior Developer",
-    "HR Manager",
-    "Recruiter",
-    "Finance Manager",
-    "Accountant",
-    "Marketing Executive",
-    "Operations Lead",
-    "Developer",
+    ...new Set(employees.map(emp => emp.designation))
   ];
 
   // Statuses
-  const statuses = ["All Status", "Active", "Inactive"];
+  // const statuses = ["All Status", "Active", "Inactive"];
 
   // Filtered employees
   const filteredEmployees = employees.filter((emp) => {
@@ -133,12 +174,12 @@ export default function ManageEmployees() {
       selectedDesignation === "All Designations" ||
       emp.designation === selectedDesignation;
 
-    const matchesStatus =
-      selectedStatus === "" ||
-      selectedStatus === "All Status" ||
-      emp.status === selectedStatus;
+    // const matchesStatus =
+    //   selectedStatus === "" ||
+    //   selectedStatus === "All Status" ||
+    //   emp.status === selectedStatus;
 
-    return matchesSearch && matchesDepartment && matchesDesignation && matchesStatus;
+    return matchesSearch && matchesDepartment && matchesDesignation ;
   });
 
   const handleReset = () => {
@@ -250,10 +291,10 @@ export default function ManageEmployees() {
 
           {/* Status Dropdown */}
           <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
+            {/* <label className="mb-2 block text-sm font-semibold text-slate-700">
               Status
-            </label>
-            <select
+            </label> */}
+            {/* <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
               className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-4 text-slate-900 outline-none transition-all duration-300 focus:border-[#36136E] focus:ring-2 focus:ring-[#F4F0FB]"
@@ -263,7 +304,7 @@ export default function ManageEmployees() {
                   {status}
                 </option>
               ))}
-            </select>
+            </select> */}
           </div>
         </div>
 
@@ -311,12 +352,12 @@ export default function ManageEmployees() {
                 <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
                   Joining Date
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
+                {/* <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
                   Status
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-slate-700">
+                </th> */}
+                {/* <th className="px-4 py-3 text-center text-sm font-semibold text-slate-700">
                   Actions
-                </th>
+                </th> */}
               </tr>
             </thead>
             <tbody>
@@ -331,9 +372,7 @@ export default function ManageEmployees() {
                   </td>
                   <td className="px-4 py-4 text-sm text-slate-900">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center text-xs font-bold">
-                        {employee.first_name}
-                      </div>
+      
                       {employee.first_name} {employee.last_name}
                     </div>
                   </td>
@@ -353,7 +392,7 @@ export default function ManageEmployees() {
                     )}
                   </td>
                   <td className="px-4 py-4 text-sm">
-                    <span
+                    {/* <span
                       className={`rounded-full px-3 py-1 text-xs font-semibold ${
                         employee.status === "Active"
                           ? "bg-green-100 text-green-700"
@@ -361,17 +400,27 @@ export default function ManageEmployees() {
                       }`}
                     >
                       {employee.status}
-                    </span>
+                    </span> */}
                   </td>
                   <td className="px-4 py-4 text-center">
                     <div className="flex justify-center gap-2">
                       <button className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-[#36136E] hover:bg-[#F4F0FB] hover:text-[#36136E]">
                         <FaEye className="text-sm" />
                       </button>
-                      <button className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-[#36136E] hover:bg-[#F4F0FB] hover:text-[#36136E]">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/hr/employees/addemployee/editemployee/${employee.id}`);
+                        }}
+                      className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-[#36136E] hover:bg-[#F4F0FB] hover:text-[#36136E]">
                         <FaEdit className="text-sm" />
                       </button>
-                      <button className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-red-500 hover:bg-red-50 hover:text-red-500">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteEmployee(employee.id);
+                        }}
+                        className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-red-500 hover:bg-red-50 hover:text-red-500">
                         <FaTrash className="text-sm" />
                       </button>
                     </div>
@@ -402,7 +451,7 @@ export default function ManageEmployees() {
                     <p className="text-xs text-slate-500">{employee.employee_id}</p>
                   </div>
                 </div>
-                <span
+                {/* <span
                   className={`rounded-full px-2 py-1 text-xs font-semibold ${
                     employee.status === "Active"
                       ? "bg-green-100 text-green-700"
@@ -410,7 +459,7 @@ export default function ManageEmployees() {
                   }`}
                 >
                   {employee.status}
-                </span>
+                </span> */}
               </div>
               <div className="mb-3 space-y-1 text-xs text-slate-600">
                 <p>{employee.department}</p>
@@ -424,7 +473,12 @@ export default function ManageEmployees() {
                 <button className="rounded-lg bg-[#F4F0FB] p-2 text-[#36136E] transition-all duration-300 hover:bg-[#36136E] hover:text-white">
                   <FaEdit className="text-sm" />
                 </button>
-                <button className="rounded-lg bg-red-50 p-2 text-red-500 transition-all duration-300 hover:bg-red-500 hover:text-white">
+                <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteEmployee(employee.id);
+                    }}
+                  className="rounded-lg bg-red-50 p-2 text-red-500 transition-all duration-300 hover:bg-red-500 hover:text-white">
                   <FaTrash className="text-sm" />
                 </button>
               </div>
@@ -502,11 +556,11 @@ export default function ManageEmployees() {
                     )}
                   </p>
                 </div>
-                <div className="rounded-2xl bg-[#F4F0FB] p-4">
+                {/* <div className="rounded-2xl bg-[#F4F0FB] p-4">
                   <p className="mb-1 text-xs font-semibold text-slate-600">
                     Status
-                  </p>
-                  <p className="flex items-center gap-2 font-semibold">
+                  </p> */}
+                  {/* <p className="flex items-center gap-2 font-semibold">
                     {selectedEmployee.status === "Active" ? (
                       <>
                         <FaCheckCircle className="text-green-600" />
@@ -518,12 +572,18 @@ export default function ManageEmployees() {
                         <span className="text-red-600">Inactive</span>
                       </>
                     )}
-                  </p>
-                </div>
+                  </p> */}
+                {/* </div> */}
               </div>
 
               <div className="border-t border-slate-200 pt-4">
-                <button className="w-full rounded-2xl bg-[#36136E] py-3 font-semibold text-white transition-all duration-300 hover:bg-[#4A1D96]">
+                <button 
+                onClick={() => 
+                  navigate(
+                    `/hr/employees/addemployee/editemployee/${selectedEmployee.id}`
+                  )
+                }
+                className="w-full rounded-2xl bg-[#36136E] py-3 font-semibold text-white transition-all duration-300 hover:bg-[#4A1D96]">
                   Edit Employee Details
                 </button>
               </div>
@@ -564,9 +624,9 @@ export default function ManageEmployees() {
                     day: "numeric",
                   })}
                 </p>
-                <span className="inline-block rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">
+                {/* <span className="inline-block rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">
                   {emp.status}
-                </span>
+                </span> */}
               </div>
             ))}
           </div>

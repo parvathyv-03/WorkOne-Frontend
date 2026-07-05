@@ -29,6 +29,7 @@ import Notification from "./pages/hr/Notification";
 import ManageEmployeesHome from "./pages/hr/ManageEmployeesHome";
 import ViewUploadedDocuments from "./pages/hr/ViewUploadedDocuments";
 import CreateEmployee from "./pages/hr/CreateEmployee";
+import EditEmployee from "./pages/hr/EditEmployee";
 
 function App() {
   return (
@@ -53,51 +54,55 @@ function App() {
             {/* CHILD ROUTES */}
 
             <Route
-              path="/hr/dashboard"
+              path="dashboard"
               element={<HRDashboard/>}
             />
             <Route
-              path="/hr/employees"
+              path="employees"
               element={<ManageEmployeesHome/>}
             />
             <Route
-              path="/hr/employees/addemployee"
+              path="employees/addemployee"
               element={<ManageEmployees/>}
             />
             <Route
-              path="/hr/employees/addemployee/createemployee"
+              path="employees/addemployee/createemployee"
               element={<CreateEmployee/>}
             />
             <Route
-              path="/hr/employees/uploadeddocuments"
+              path="employees/addemployee/editemployee/:id"
+              element={<EditEmployee/>}
+            />
+            <Route
+              path="employees/uploadeddocuments"
               element={<ViewUploadedDocuments/>}
             />
             <Route
-              path="/hr/leave"
+              path="leave"
               element={<Leave/>}
             />
             <Route
-              path="/hr/attendance"
+              path="attendance"
               element={<AttendanceTracking/>}
             />
             <Route
-              path="/hr/complaints"
+              path="complaints"
               element={<ComplaintManagement/>}
             />
             <Route
-              path="/hr/payslip"
+              path="payslip"
               element={<PayslipManagement/>}
             />
             <Route
-              path="/hr/recruitment"
+              path="recruitment"
               element={<Recruitment/>}
             />
             <Route
-              path="/hr/reports"
+              path="reports"
               element={<ReportsAnalytics/>}
             />
             <Route
-              path="/hr/notification"
+              path="notification"
               element={<Notification/>}
             />
             
