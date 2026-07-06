@@ -70,7 +70,7 @@ function App() {
               element={<CreateEmployee/>}
             />
             <Route
-              path="employees/addemployee/editemployee/:id"
+              path="employees/addemployee/editemployee/:employee_id"
               element={<EditEmployee/>}
             />
             <Route

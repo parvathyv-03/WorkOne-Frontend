@@ -91,7 +91,7 @@ export default function ManageEmployees() {
     try{
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/hr/employees/${employee.id}/`,
+        `http://127.0.0.1:8000/api/hr/employees/${id}/`,
         {
           method:"DELETE",
           headers:{
@@ -410,7 +410,7 @@ export default function ManageEmployees() {
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/hr/employees/addemployee/editemployee/${employee.id}`);
+                          navigate(`/hr/employees/addemployee/editemployee/${employee.employee_id}`);
                         }}
                       className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-[#36136E] hover:bg-[#F4F0FB] hover:text-[#36136E]">
                         <FaEdit className="text-sm" />
@@ -418,7 +418,8 @@ export default function ManageEmployees() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          deleteEmployee(employee.id);
+                          console.log(employee);
+                          deleteEmployee(employee.employee_id);
                         }}
                         className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-red-500 hover:bg-red-50 hover:text-red-500">
                         <FaTrash className="text-sm" />

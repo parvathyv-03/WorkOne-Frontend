@@ -399,7 +399,7 @@ export default function EditEmployee() {
                   name="mobile_number"
                   value={form.mobile_number}
                   onChange={(event) => updateField("mobile_number", event.target.value)}
-                  placeholder="9876543210"
+                  placeholder="9999999999"
                   icon={FaPhone}
                   error={errors.mobile_number}
                 />
@@ -408,7 +408,7 @@ export default function EditEmployee() {
                   name="alternate_number"
                   value={form.alternate_number}
                   onChange={(event) => updateField("alternate_number", event.target.value)}
-                  placeholder="9876543211"
+                  placeholder="9999999999"
                   icon={FaPhone}
                   error={errors.alternate_number}
                 />
@@ -527,7 +527,7 @@ export default function EditEmployee() {
                   name="emergency_contact_number"
                   value={form.emergency_contact_number}
                   onChange={(event) => updateField("emergency_contact_number", event.target.value)}
-                  placeholder="9876543212"
+                  placeholder="9999999999"
                   icon={FaPhone}
                   error={errors.emergency_contact_number}
                 />
@@ -536,7 +536,7 @@ export default function EditEmployee() {
                   name="emergency_alternate_number"
                   value={form.emergency_alternate_number}
                   onChange={(event) => updateField("emergency_alternate_number", event.target.value)}
-                  placeholder="9876543213"
+                  placeholder="9999999999"
                   icon={FaPhone}
                   error={errors.emergency_alternate_number}
                 />
