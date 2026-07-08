@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { FaSearch, FaEye, FaDownload, FaCheckCircle, FaFilePdf, FaTimes } from "react-icons/fa";
+import { FaSearch, FaEye, FaCheckCircle, FaFilePdf, FaTimes } from "react-icons/fa";
 
 const DOCUMENT_TYPES = ["Resume", "Degree Certificate", "Experience Certificate", "Offer Letter"];
 const STATUSES = ["Verified", "Pending Verification"];
@@ -204,12 +204,7 @@ export default function ViewUploadedDocuments() {
                               >
                                 <FaEye size={16} />
                               </button>
-                              <button
-                                className="rounded-lg bg-[#F4F0FB] p-2 text-[#36136E] hover:bg-[#ece5fa] transition"
-                                title="Download Document"
-                              >
-                                <FaDownload size={16} />
-                              </button>
+     
                               {doc.status === "Pending Verification" && (
                                 <button
                                   className="rounded-lg bg-emerald-100 p-2 text-emerald-700 hover:bg-emerald-200 transition"

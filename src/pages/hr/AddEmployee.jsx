@@ -55,7 +55,7 @@ export default function ManageEmployees() {
   // Summary Cards Data
   const summaryCards = [
     { title: "Total Employees", value: employees.length, icon: FaUsers },
-    { title: "New Joiners This Month", value: employees.length, icon: FaUserPlus },
+    { title: "New Joiners This Month", value: newJoinersCount, icon: FaUserPlus },
     { title: "Departments", value: totalDepartments, icon: FaBuilding },
   ];
 
@@ -581,7 +581,7 @@ export default function ManageEmployees() {
                 <button 
                 onClick={() => 
                   navigate(
-                    `/hr/employees/addemployee/editemployee/${selectedEmployee.id}`
+                    `/hr/employees/addemployee/editemployee/${selectedEmployee.employee_id}`
                   )
                 }
                 className="w-full rounded-2xl bg-[#36136E] py-3 font-semibold text-white transition-all duration-300 hover:bg-[#4A1D96]">
