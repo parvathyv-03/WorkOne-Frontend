@@ -1,18 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { FaSearch, FaEye, FaCheckCircle, FaFilePdf, FaTimes } from "react-icons/fa";
 
 const DOCUMENT_TYPES = ["Resume", "Degree Certificate", "Experience Certificate", "Offer Letter"];
 const STATUSES = ["Verified", "Pending Verification"];
-
-const dummyDocuments = [
-  { id: "EMP-001", name: "John David", docType: "Resume", uploadDate: "2026-06-22", status: "Verified" },
-  { id: "EMP-002", name: "Sarah Williams", docType: "Degree Certificate", uploadDate: "2026-06-21", status: "Pending Verification" },
-  { id: "EMP-003", name: "Michael Johnson", docType: "Experience Certificate", uploadDate: "2026-06-20", status: "Verified" },
-  { id: "EMP-004", name: "Emily Brown", docType: "Offer Letter", uploadDate: "2026-06-19", status: "Pending Verification" },
-  { id: "EMP-005", name: "David Martinez", docType: "Resume", uploadDate: "2026-06-18", status: "Verified" },
-  { id: "EMP-006", name: "Jessica Chen", docType: "Degree Certificate", uploadDate: "2026-06-17", status: "Pending Verification" },
-  { id: "EMP-007", name: "Robert Wilson", docType: "Experience Certificate", uploadDate: "2026-06-16", status: "Verified" },
-];
 
 function getStatusBadgeClass(status) {
   return status === "Verified"
@@ -25,23 +15,70 @@ export default function ViewUploadedDocuments() {
   const [searchId, setSearchId] = useState("");
   const [filterDocType, setFilterDocType] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
-  const [selectedDoc, setSelectedDoc] = useState(dummyDocuments[0]);
+  const [documents,setDocuments] = useState([]);
+  const [selectedDoc, setSelectedDoc] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
 
+  useEffect(() => {
+        fetchDocuments();
+      },[]);
+
+  const fetchDocuments = async () => {
+    const token = localStorage.getItem("accessToken");
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/hr/documents/",
+      {
+        headers:{
+          Authorization:`Bearer ${token}`,
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+
+    if(response.ok){
+      setDocuments(data);
+    }else{
+      console.log(data);
+    }
+  }
+
+  const verifyDocument = async(id) => {
+
+    const token = localStorage.getItem("accessToken");
+
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/hr/documents/${id}/verify/`,
+      {
+        method:"PATCH",
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      }
+    );
+
+    if(response.ok){
+      fetchDocuments();
+    }
+  }
+
   const filteredDocuments = useMemo(() => {
-    return dummyDocuments.filter((doc) => {
-      const matchName = doc.name.toLowerCase().includes(searchName.toLowerCase());
-      const matchId = doc.id.toLowerCase().includes(searchId.toLowerCase());
-      const matchType = filterDocType === "All" || doc.docType === filterDocType;
+    return documents.filter((doc) => {
+      const matchName = doc.employee_name.toLowerCase().includes(searchName.toLowerCase());
+      const matchId = doc.employee_id.toLowerCase().includes(searchId.toLowerCase());
+      const matchType = filterDocType === "All" || doc.category === filterDocType;
       const matchStatus = filterStatus === "All" || doc.status === filterStatus;
       return matchName && matchId && matchType && matchStatus;
     });
-  }, [searchName, searchId, filterDocType, filterStatus]);
+  }, [documents,searchName, searchId, filterDocType, filterStatus]);
 
-  const totalDocs = dummyDocuments.length;
-  const verifiedDocs = dummyDocuments.filter((d) => d.status === "Verified").length;
-  const pendingDocs = dummyDocuments.filter((d) => d.status === "Pending Verification").length;
-  const employeesUploaded = new Set(dummyDocuments.map((d) => d.id)).size;
+  const totalDocs = documents.length;
+  const verifiedDocs = documents.filter((d) => d.status === "Verified").length;
+  const pendingDocs = documents.filter((d) => d.status === "Pending Verification").length;
+  const employeesUploaded = new Set(documents.map((d) => d.id)).size;
 
   const handleReset = () => {
     setSearchName("");
@@ -183,10 +220,10 @@ export default function ViewUploadedDocuments() {
                     <tbody className="divide-y divide-slate-200">
                       {filteredDocuments.map((doc) => (
                         <tr key={doc.id} className="hover:bg-slate-50 transition">
-                          <td className="px-6 py-3 font-medium text-slate-700">{doc.id}</td>
-                          <td className="px-6 py-3 text-slate-600">{doc.name}</td>
-                          <td className="px-6 py-3 text-slate-600">{doc.docType}</td>
-                          <td className="px-6 py-3 text-slate-600">{doc.uploadDate}</td>
+                          <td className="px-6 py-3 font-medium text-slate-700">{doc.employee_id}</td>
+                          <td className="px-6 py-3 text-slate-600">{doc.employee_name}</td>
+                          <td className="px-6 py-3 text-slate-600">{doc.category}</td>
+                          <td className="px-6 py-3 text-slate-600">{doc.uploaded_at}</td>
                           <td className="px-6 py-3">
                             <span className={getStatusBadgeClass(doc.status)}>
                               {doc.status}
@@ -207,6 +244,7 @@ export default function ViewUploadedDocuments() {
      
                               {doc.status === "Pending Verification" && (
                                 <button
+                                  onClick={() => verifyDocument(doc.id)}
                                   className="rounded-lg bg-emerald-100 p-2 text-emerald-700 hover:bg-emerald-200 transition"
                                   title="Verify Document"
                                 >
@@ -239,19 +277,19 @@ export default function ViewUploadedDocuments() {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                 <div className="rounded-2xl bg-[#F4F0FB] p-4">
                   <p className="text-xs font-semibold uppercase text-slate-500">Employee Name</p>
-                  <p className="mt-1 text-slate-800">{selectedDoc.name}</p>
+                  <p className="mt-1 text-slate-800">{selectedDoc.employee_name}</p>
                 </div>
                 <div className="rounded-2xl bg-[#F4F0FB] p-4">
                   <p className="text-xs font-semibold uppercase text-slate-500">Employee ID</p>
-                  <p className="mt-1 text-slate-800">{selectedDoc.id}</p>
+                  <p className="mt-1 text-slate-800">{selectedDoc.employee_id}</p>
                 </div>
                 <div className="rounded-2xl bg-[#F4F0FB] p-4">
                   <p className="text-xs font-semibold uppercase text-slate-500">Document Type</p>
-                  <p className="mt-1 text-slate-800">{selectedDoc.docType}</p>
+                  <p className="mt-1 text-slate-800">{selectedDoc.category}</p>
                 </div>
                 <div className="rounded-2xl bg-[#F4F0FB] p-4">
                   <p className="text-xs font-semibold uppercase text-slate-500">Upload Date</p>
-                  <p className="mt-1 text-slate-800">{selectedDoc.uploadDate}</p>
+                  <p className="mt-1 text-slate-800">{selectedDoc.uploaded_at}</p>
                 </div>
                 <div className="rounded-2xl bg-[#F4F0FB] p-4">
                   <p className="text-xs font-semibold uppercase text-slate-500">Status</p>
@@ -263,7 +301,9 @@ export default function ViewUploadedDocuments() {
                 </div>
               </div>
               <div className="mt-6 flex flex-wrap gap-3">
-                <button className="flex-1 rounded-2xl border border-[#36136E] bg-white px-4 py-2 text-sm font-semibold text-[#36136E] hover:bg-[#F4F0FB] transition">
+                <button 
+                  onClick={() => window.open(selectedDoc.document_url,"_blank")}
+                  className="flex-1 rounded-2xl border border-[#36136E] bg-white px-4 py-2 text-sm font-semibold text-[#36136E] hover:bg-[#F4F0FB] transition">
                   View Document
                 </button>
                 {selectedDoc.status === "Pending Verification" && (
@@ -271,9 +311,6 @@ export default function ViewUploadedDocuments() {
                     Verify Document
                   </button>
                 )}
-                <button className="flex-1 rounded-2xl border border-[#36136E] bg-white px-4 py-2 text-sm font-semibold text-[#36136E] hover:bg-[#F4F0FB] transition">
-                  Download
-                </button>
                 <button
                   onClick={() => setShowPreview(false)}
                   className="flex-1 rounded-2xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-300 transition"
