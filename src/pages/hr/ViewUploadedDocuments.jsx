@@ -61,9 +61,16 @@ export default function ViewUploadedDocuments() {
     );
 
     if(response.ok){
-      fetchDocuments();
+      await fetchDocuments();
+
+      if (selectedDoc && selectedDoc.id === id){
+        setSelectedDoc((prev) => ({
+          ...prev,
+          status:"Verified",
+        }));
+      }
     }
-  }
+  };
 
   const filteredDocuments = useMemo(() => {
     return documents.filter((doc) => {
@@ -307,7 +314,9 @@ export default function ViewUploadedDocuments() {
                   View Document
                 </button>
                 {selectedDoc.status === "Pending Verification" && (
-                  <button className="flex-1 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition">
+                  <button 
+                    onClick={() => verifyDocument(selectedDoc.id)}
+                    className="flex-1 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 transition">
                     Verify Document
                   </button>
                 )}

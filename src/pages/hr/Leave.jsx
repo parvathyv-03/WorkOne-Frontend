@@ -43,7 +43,6 @@ export default function Leave() {
       leaveType: "Casual Leave",
       startDate: "2024-06-20",
       endDate: "2024-06-22",
-      duration: 3,
       reason: "Personal work",
       status: "Pending",
       department: "IT",
@@ -56,7 +55,6 @@ export default function Leave() {
       leaveType: "Sick Leave",
       startDate: "2024-06-18",
       endDate: "2024-06-18",
-      duration: 1,
       reason: "Medical checkup",
       status: "Approved",
       department: "HR",
@@ -69,7 +67,6 @@ export default function Leave() {
       leaveType: "Privilege Leave",
       startDate: "2024-07-01",
       endDate: "2024-07-10",
-      duration: 10,
       reason: "Family vacation",
       status: "Approved",
       department: "Finance",
@@ -82,7 +79,6 @@ export default function Leave() {
       leaveType: "Casual Leave",
       startDate: "2024-06-25",
       endDate: "2024-06-26",
-      duration: 2,
       reason: "Doctor appointment",
       status: "Rejected",
       department: "Marketing",
@@ -95,7 +91,6 @@ export default function Leave() {
       leaveType: "Sick Leave",
       startDate: "2024-06-19",
       endDate: "2024-06-19",
-      duration: 1,
       reason: "Flu symptoms",
       status: "Pending",
       department: "IT",
@@ -108,7 +103,6 @@ export default function Leave() {
       leaveType: "Casual Leave",
       startDate: "2024-06-24",
       endDate: "2024-06-24",
-      duration: 1,
       reason: "Personal meeting",
       status: "Approved",
       department: "Operations",
@@ -121,7 +115,6 @@ export default function Leave() {
       leaveType: "Privilege Leave",
       startDate: "2024-07-05",
       endDate: "2024-07-12",
-      duration: 8,
       reason: "Wedding celebration",
       status: "Pending",
       department: "Finance",
@@ -134,7 +127,6 @@ export default function Leave() {
       leaveType: "Sick Leave",
       startDate: "2024-06-21",
       endDate: "2024-06-21",
-      duration: 1,
       reason: "Emergency",
       status: "Rejected",
       department: "HR",
@@ -370,10 +362,7 @@ export default function Leave() {
                   Leave Type
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
-                  Duration
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
-                  Start - End Date
+                  Date
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
                   Reason
@@ -404,9 +393,7 @@ export default function Leave() {
                       {leave.leaveType}
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-sm text-slate-900">
-                    {leave.duration} day{leave.duration > 1 ? "s" : ""}
-                  </td>
+
                   <td className="px-4 py-4 text-sm text-slate-600">
                     {new Date(leave.startDate).toLocaleDateString("en-US", {
                       month: "short",
@@ -432,32 +419,27 @@ export default function Leave() {
                   </td>
                   <td className="px-4 py-4 text-center">
                     <div className="flex justify-center gap-2">
-                      {leave.status === "Pending" ? (
-                        <>
-                          <button
-                            onClick={() => handleViewDetails(leave)}
-                            className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-green-500 hover:bg-green-50 hover:text-green-600"
-                            title="Approve"
-                          >
-                            <FaCheck className="text-sm" />
-                          </button>
-                          <button
-                            onClick={() => handleViewDetails(leave)}
-                            className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-red-500 hover:bg-red-50 hover:text-red-600"
-                            title="Reject"
-                          >
-                            <FaTimes className="text-sm" />
-                          </button>
-                        </>
-                      ) : (
+
+                        {/* view button */}
+
                         <button
                           onClick={() => handleViewDetails(leave)}
                           className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-[#36136E] hover:bg-[#F4F0FB] hover:text-[#36136E]"
                           title="View Details"
                         >
-                          <FaEye className="text-sm" />
+                          <FaEye className="text-sm"/>
                         </button>
-                      )}
+
+                        {leave.status === "Pending" && (
+                          <>
+                            <button
+                              className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-red-500 hover:bg-red-50 hover:text-red-600"
+                              title="Reject"
+                            >
+                              <FaTimes className="text-sm"/>
+                            </button>
+                          </>
+                        )}
                     </div>
                   </td>
                 </tr>
@@ -508,26 +490,27 @@ export default function Leave() {
                 <p>{leave.reason}</p>
               </div>
               <div className="flex gap-2">
-                {leave.status === "Pending" ? (
-                  <>
-                    <button className="flex-1 rounded-lg bg-green-100 py-2 text-sm font-semibold text-green-700 transition-all duration-300 hover:bg-green-600 hover:text-white">
-                      <FaCheck className="inline mr-1" />
-                      Approve
-                    </button>
-                    <button className="flex-1 rounded-lg bg-red-100 py-2 text-sm font-semibold text-red-700 transition-all duration-300 hover:bg-red-600 hover:text-white">
-                      <FaTimes className="inline mr-1" />
-                      Reject
-                    </button>
-                  </>
-                ) : (
                   <button
                     onClick={() => handleViewDetails(leave)}
-                    className="w-full rounded-lg bg-[#F4F0FB] py-2 text-sm font-semibold text-[#36136E] transition-all duration-300 hover:bg-[#36136E] hover:text-white"
+                    className="flex-1 rounded-lg bg-[#F4F0FB] py-2 text-sm font-semibold text-[#36136E] hover:bg-[#36136E] hover:text-white"
                   >
-                    <FaEye className="inline mr-1" />
-                    View Details
+                    <FaEye className="inline mr-1"/>
+                    View
                   </button>
-                )}
+
+                  {leave.status === "Pending" && (
+                    <>
+                      <button className="flex-1 rounded-lg bg-green-100 py-2 text-sm font-semibold text-green-700 hover:bg-green-600 hover:text-white">
+                        <FaCheck className="inline mr-1" />
+                        Approve
+                      </button>
+
+                      <button className="flex-1 rounded-lg bg-red-100 py-2 text-sm font-semibold text-red-700 hover:bg-red-600 hover:text-white">
+                        <FaTimes className="inline mr-1" />
+                        Reject
+                      </button>
+                    </>
+                  )}
               </div>
             </div>
           ))}
@@ -543,10 +526,10 @@ export default function Leave() {
 
       {/* Leave Details Modal */}
       {isModalOpen && selectedLeave && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="w-full max-w-2xl rounded-3xl bg-white p-8 shadow-2xl">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-6">
+          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl">
             {/* Modal Header */}
-            <div className="mb-6 flex items-center justify-between border-b border-slate-200 pb-4">
+            <div className="flex items-center min-h-full justify-center">
               <h2 className="text-2xl font-bold text-slate-900">
                 Leave Request Details
               </h2>
@@ -554,7 +537,7 @@ export default function Leave() {
                 onClick={closeModal}
                 className="text-slate-500 transition-all duration-300 hover:text-slate-900"
               >
-                <FaX className="text-lg" />
+                <FaTimes className="text-lg" />
               </button>
             </div>
 
