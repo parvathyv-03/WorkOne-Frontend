@@ -20,6 +20,9 @@ import {
 } from "react-icons/fa";
 
 export default function Leave() {
+  const [summary,setSummary] = useState({});
+  const [leaveRequests,setLeaveRequests] = useState([]);
+  const [activities,setActivities] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLeaveType, setSelectedLeaveType] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -28,146 +31,10 @@ export default function Leave() {
 
   // Summary Cards Data
   const summaryCards = [
-    { title: "Total Leave Requests", value: "42", icon: FaLeaf },
-    { title: "Pending Requests", value: "8", icon: FaClock },
-    { title: "Approved Requests", value: "28", icon: FaCheckCircle },
-    { title: "Rejected Requests", value: "6", icon: FaTimesCircle },
-  ];
-
-  // Leave Requests Data
-  const leaveRequests = [
-    {
-      id: "LR001",
-      employeeName: "John David",
-      employeeId: "EMP001",
-      leaveType: "Casual Leave",
-      startDate: "2024-06-20",
-      endDate: "2024-06-22",
-      reason: "Personal work",
-      status: "Pending",
-      department: "IT",
-      submittedDate: "2024-06-15",
-    },
-    {
-      id: "LR002",
-      employeeName: "Sarah Williams",
-      employeeId: "EMP002",
-      leaveType: "Sick Leave",
-      startDate: "2024-06-18",
-      endDate: "2024-06-18",
-      reason: "Medical checkup",
-      status: "Approved",
-      department: "HR",
-      submittedDate: "2024-06-17",
-    },
-    {
-      id: "LR003",
-      employeeName: "Michael Johnson",
-      employeeId: "EMP003",
-      leaveType: "Privilege Leave",
-      startDate: "2024-07-01",
-      endDate: "2024-07-10",
-      reason: "Family vacation",
-      status: "Approved",
-      department: "Finance",
-      submittedDate: "2024-06-10",
-    },
-    {
-      id: "LR004",
-      employeeName: "Emily Brown",
-      employeeId: "EMP004",
-      leaveType: "Casual Leave",
-      startDate: "2024-06-25",
-      endDate: "2024-06-26",
-      reason: "Doctor appointment",
-      status: "Rejected",
-      department: "Marketing",
-      submittedDate: "2024-06-16",
-    },
-    {
-      id: "LR005",
-      employeeName: "David Martinez",
-      employeeId: "EMP005",
-      leaveType: "Sick Leave",
-      startDate: "2024-06-19",
-      endDate: "2024-06-19",
-      reason: "Flu symptoms",
-      status: "Pending",
-      department: "IT",
-      submittedDate: "2024-06-18",
-    },
-    {
-      id: "LR006",
-      employeeName: "Jessica Anderson",
-      employeeId: "EMP006",
-      leaveType: "Casual Leave",
-      startDate: "2024-06-24",
-      endDate: "2024-06-24",
-      reason: "Personal meeting",
-      status: "Approved",
-      department: "Operations",
-      submittedDate: "2024-06-14",
-    },
-    {
-      id: "LR007",
-      employeeName: "Robert Taylor",
-      employeeId: "EMP007",
-      leaveType: "Privilege Leave",
-      startDate: "2024-07-05",
-      endDate: "2024-07-12",
-      reason: "Wedding celebration",
-      status: "Pending",
-      department: "Finance",
-      submittedDate: "2024-06-12",
-    },
-    {
-      id: "LR008",
-      employeeName: "Lisa White",
-      employeeId: "EMP008",
-      leaveType: "Sick Leave",
-      startDate: "2024-06-21",
-      endDate: "2024-06-21",
-      reason: "Emergency",
-      status: "Rejected",
-      department: "HR",
-      submittedDate: "2024-06-19",
-    },
-  ];
-
-  // Recent Activities Data
-  const activities = [
-    {
-      id: 1,
-      action: "approved",
-      employeeName: "Sarah Williams",
-      leaveType: "Sick Leave",
-      timestamp: "2 hours ago",
-      icon: FaCheckDouble,
-    },
-    {
-      id: 2,
-      action: "submitted",
-      employeeName: "David Martinez",
-      leaveType: "Sick Leave",
-      timestamp: "1 hour ago",
-      icon: FaFileAlt,
-    },
-    {
-      id: 3,
-      action: "rejected",
-      employeeName: "Emily Brown",
-      leaveType: "Casual Leave",
-      timestamp: "3 hours ago",
-      icon: FaTimesCircle,
-    },
-    {
-      id: 4,
-      action: "approved",
-      employeeName: "Michael Johnson",
-      leaveType: "Privilege Leave",
-      timestamp: "5 hours ago",
-      icon: FaCheckDouble,
-    },
+    { title: "Total Leave Requests", value: summary.total, icon: FaLeaf },
+    { title: "Pending Requests", value: summary.pending, icon: FaClock },
+    { title: "Approved Requests", value: summary.approved, icon: FaCheckCircle },
+    { title: "Rejected Requests", value: summary.rejected, icon: FaTimesCircle },
   ];
 
   // Leave Types
@@ -185,7 +52,14 @@ export default function Leave() {
   const filteredLeaves = leaveRequests.filter((leave) => {
     const matchesSearch = leave.employeeName
       .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+      
+      ||
+
+      leave.employeeId
+      .toLowerCase()
       .includes(searchTerm.toLowerCase());
+
     const matchesType =
       selectedLeaveType === "" ||
       selectedLeaveType === "All Types" ||
@@ -328,10 +202,6 @@ export default function Leave() {
 
         {/* Filter Buttons */}
         <div className="mt-4 flex flex-wrap gap-3">
-          <button className="flex items-center gap-2 rounded-2xl bg-[#36136E] px-6 py-2.5 font-semibold text-white transition-all duration-300 hover:bg-[#4A1D96]">
-            <FaFilter className="text-sm" />
-            Filter
-          </button>
           <button
             onClick={handleReset}
             className="rounded-2xl border-2 border-slate-300 px-6 py-2.5 font-semibold text-slate-700 transition-all duration-300 hover:border-[#36136E] hover:text-[#36136E]"
@@ -433,6 +303,13 @@ export default function Leave() {
                         {leave.status === "Pending" && (
                           <>
                             <button
+                              className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-red-500 hover:bg-red-50 hover:text-green-600"
+                              title="Approve"
+                            >
+                              <FaCheck className="text-sm"/>
+                            </button>
+
+                            <button
                               className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-red-500 hover:bg-red-50 hover:text-red-600"
                               title="Reject"
                             >
@@ -475,18 +352,6 @@ export default function Leave() {
                   <FaLeaf className="text-[#36136E]" />
                   {leave.leaveType}
                 </p>
-                <p>
-                  {new Date(leave.startDate).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}{" "}
-                  -{" "}
-                  {new Date(leave.endDate).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}{" "}
-                  ({leave.duration} days)
-                </p>
                 <p>{leave.reason}</p>
               </div>
               <div className="flex gap-2">
@@ -527,169 +392,164 @@ export default function Leave() {
       {/* Leave Details Modal */}
       {isModalOpen && selectedLeave && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-6">
-          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl">
-            {/* Modal Header */}
-            <div className="flex items-center min-h-full justify-center">
-              <h2 className="text-2xl font-bold text-slate-900">
-                Leave Request Details
-              </h2>
-              <button
-                onClick={closeModal}
-                className="text-slate-500 transition-all duration-300 hover:text-slate-900"
-              >
-                <FaTimes className="text-lg" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="space-y-6">
-              {/* Employee Information */}
-              <div>
-                <h3 className="mb-3 text-sm font-bold uppercase tracking-widest text-slate-700">
-                  Employee Information
-                </h3>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-2xl bg-[#F4F0FB] p-4">
-                    <p className="mb-1 text-xs font-semibold text-slate-600">
-                      <FaUser className="inline mr-2" />
-                      Employee Name
-                    </p>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {selectedLeave.employeeName}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl bg-[#F4F0FB] p-4">
-                    <p className="mb-1 text-xs font-semibold text-slate-600">
-                      Employee ID
-                    </p>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {selectedLeave.employeeId}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl bg-[#F4F0FB] p-4 sm:col-span-2">
-                    <p className="mb-1 text-xs font-semibold text-slate-600">
-                      <FaBriefcase className="inline mr-2" />
-                      Department
-                    </p>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {selectedLeave.department}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Leave Information */}
-              <div>
-                <h3 className="mb-3 text-sm font-bold uppercase tracking-widest text-slate-700">
-                  Leave Information
-                </h3>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-2xl bg-[#F4F0FB] p-4">
-                    <p className="mb-1 text-xs font-semibold text-slate-600">
-                      <FaLeaf className="inline mr-2" />
-                      Leave Type
-                    </p>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {selectedLeave.leaveType}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl bg-[#F4F0FB] p-4">
-                    <p className="mb-1 text-xs font-semibold text-slate-600">
-                      Duration
-                    </p>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {selectedLeave.duration} day
-                      {selectedLeave.duration > 1 ? "s" : ""}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl bg-[#F4F0FB] p-4">
-                    <p className="mb-1 text-xs font-semibold text-slate-600">
-                      <FaCalendarAlt className="inline mr-2" />
-                      Start Date
-                    </p>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {new Date(selectedLeave.startDate).toLocaleDateString(
-                        "en-US",
-                        { year: "numeric", month: "long", day: "numeric" }
-                      )}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl bg-[#F4F0FB] p-4">
-                    <p className="mb-1 text-xs font-semibold text-slate-600">
-                      <FaCalendarAlt className="inline mr-2" />
-                      End Date
-                    </p>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {new Date(selectedLeave.endDate).toLocaleDateString(
-                        "en-US",
-                        { year: "numeric", month: "long", day: "numeric" }
-                      )}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl bg-[#F4F0FB] p-4 sm:col-span-2">
-                    <p className="mb-1 text-xs font-semibold text-slate-600">
-                      <FaFileAlt className="inline mr-2" />
-                      Reason
-                    </p>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {selectedLeave.reason}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Approval Information */}
-              <div>
-                <h3 className="mb-3 text-sm font-bold uppercase tracking-widest text-slate-700">
-                  Status Information
-                </h3>
-                <div className="rounded-2xl bg-[#F4F0FB] p-4">
-                  <p className="mb-2 text-xs font-semibold text-slate-600">
-                    Current Status
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`rounded-full px-4 py-2 text-sm font-semibold ${getStatusColor(
-                        selectedLeave.status
-                      )}`}
-                    >
-                      {selectedLeave.status}
-                    </span>
-                    <p className="text-xs text-slate-600">
-                      Submitted on{" "}
-                      {new Date(selectedLeave.submittedDate).toLocaleDateString(
-                        "en-US",
-                        { year: "numeric", month: "short", day: "numeric" }
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              {selectedLeave.status === "Pending" && (
-                <div className="flex gap-3 border-t border-slate-200 pt-6">
-                  <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-green-600 py-3 font-semibold text-white transition-all duration-300 hover:bg-green-700">
-                    <FaCheck className="text-lg" />
-                    Approve Leave
-                  </button>
-                  <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-red-600 py-3 font-semibold text-white transition-all duration-300 hover:bg-red-700">
-                    <FaTimes className="text-lg" />
-                    Reject Leave
-                  </button>
-                </div>
-              )}
-              {selectedLeave.status !== "Pending" && (
-                <div className="border-t border-slate-200 pt-6">
+          
+          <div className="flex min-h-full items-center justify-center">
+              <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-8 shadow-2xl">
+                {/* Modal Header */}
+                <div className="mb-6 flex items-center justify-between border-b border-slate-200 pb-4">
+                  <h2 className="text-2xl font-bold text-slate-900">
+                    Leave Request Details
+                  </h2>
                   <button
                     onClick={closeModal}
-                    className="w-full rounded-2xl bg-[#36136E] py-3 font-semibold text-white transition-all duration-300 hover:bg-[#4A1D96]"
+                    className="text-slate-500 transition-all duration-300 hover:text-slate-900"
                   >
-                    Close
+                    <FaTimes className="text-lg" />
                   </button>
                 </div>
-              )}
-            </div>
+
+                {/* Modal Body */}
+                <div className="space-y-6">
+                  {/* Employee Information */}
+                  <div>
+                    <h3 className="mb-3 text-sm font-bold uppercase tracking-widest text-slate-700">
+                      Employee Information
+                    </h3>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="rounded-2xl bg-[#F4F0FB] p-4">
+                        <p className="mb-1 text-xs font-semibold text-slate-600">
+                          <FaUser className="inline mr-2" />
+                          Employee Name
+                        </p>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {selectedLeave.employeeName}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl bg-[#F4F0FB] p-4">
+                        <p className="mb-1 text-xs font-semibold text-slate-600">
+                          Employee ID
+                        </p>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {selectedLeave.employeeId}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl bg-[#F4F0FB] p-4 sm:col-span-2">
+                        <p className="mb-1 text-xs font-semibold text-slate-600">
+                          <FaBriefcase className="inline mr-2" />
+                          Department
+                        </p>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {selectedLeave.department}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Leave Information */}
+                  <div>
+                    <h3 className="mb-3 text-sm font-bold uppercase tracking-widest text-slate-700">
+                      Leave Information
+                    </h3>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="rounded-2xl bg-[#F4F0FB] p-4">
+                        <p className="mb-1 text-xs font-semibold text-slate-600">
+                          <FaLeaf className="inline mr-2" />
+                          Leave Type
+                        </p>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {selectedLeave.leaveType}
+                        </p>
+                      </div>
+                      
+                      <div className="rounded-2xl bg-[#F4F0FB] p-4">
+                        <p className="mb-1 text-xs font-semibold text-slate-600">
+                          <FaCalendarAlt className="inline mr-2" />
+                          Start Date
+                        </p>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {new Date(selectedLeave.startDate).toLocaleDateString(
+                            "en-US",
+                            { year: "numeric", month: "long", day: "numeric" }
+                          )}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl bg-[#F4F0FB] p-4">
+                        <p className="mb-1 text-xs font-semibold text-slate-600">
+                          <FaCalendarAlt className="inline mr-2" />
+                          End Date
+                        </p>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {new Date(selectedLeave.endDate).toLocaleDateString(
+                            "en-US",
+                            { year: "numeric", month: "long", day: "numeric" }
+                          )}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl bg-[#F4F0FB] p-4 sm:col-span-2">
+                        <p className="mb-1 text-xs font-semibold text-slate-600">
+                          <FaFileAlt className="inline mr-2" />
+                          Reason
+                        </p>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {selectedLeave.reason}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Approval Information */}
+                  <div>
+                    <h3 className="mb-3 text-sm font-bold uppercase tracking-widest text-slate-700">
+                      Status Information
+                    </h3>
+                    <div className="rounded-2xl bg-[#F4F0FB] p-4">
+                      <p className="mb-2 text-xs font-semibold text-slate-600">
+                        Current Status
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`rounded-full px-4 py-2 text-sm font-semibold ${getStatusColor(
+                            selectedLeave.status
+                          )}`}
+                        >
+                          {selectedLeave.status}
+                        </span>
+                        <p className="text-xs text-slate-600">
+                          Submitted on{" "}
+                          {new Date(selectedLeave.submittedDate).toLocaleDateString(
+                            "en-US",
+                            { year: "numeric", month: "short", day: "numeric" }
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  {selectedLeave.status === "Pending" && (
+                    <div className="flex gap-3 border-t border-slate-200 pt-6">
+                      <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-green-600 py-3 font-semibold text-white transition-all duration-300 hover:bg-green-700">
+                        <FaCheck className="text-lg" />
+                        Approve Leave
+                      </button>
+                      <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-red-600 py-3 font-semibold text-white transition-all duration-300 hover:bg-red-700">
+                        <FaTimes className="text-lg" />
+                        Reject Leave
+                      </button>
+                    </div>
+                  )}
+                  {selectedLeave.status !== "Pending" && (
+                    <div className="border-t border-slate-200 pt-6">
+                      <button
+                        onClick={closeModal}
+                        className="w-full rounded-2xl bg-[#36136E] py-3 font-semibold text-white transition-all duration-300 hover:bg-[#4A1D96]"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
           </div>
         </div>
       )}
