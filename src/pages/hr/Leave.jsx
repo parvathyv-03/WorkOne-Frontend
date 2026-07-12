@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FaLeaf,
   FaClock,
@@ -28,21 +28,130 @@ export default function Leave() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedLeave, setSelectedLeave] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading,setLoading] = useState(true);
+
+  // FOR PAGINATION
+  const [currentPage,setCurrentPage] = useState(1);
+  const [nextPage,setNextPage] = useState(null);
+  const [previousPage,setPreviousPage] = useState(null);
+  const [totalCount,setTotalCount] = useState(0);
+
+  useEffect(() => {
+    fetchLeaveData(currentPage);
+  },[currentPage]);
+
+  const fetchLeaveData = async (page = 1) => {
+    try{
+      const token = localStorage.getItem("accessToken");
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/hr/leaves/?page=${page}",
+        {
+          method:"GET",
+          headers:{
+            "Content-Type": "application/json",
+            Authorization:`Bearer ${token}`
+          }
+        }
+      );
+
+      if(!response.ok){
+        throw new Error("Failed to fetch leave data");
+      }
+
+      const data = await response.json();
+    
+      setSummary(data.summary || {});
+      setLeaveRequests(data.leave_requests || []);
+      setActivities(data.activities || []);
+
+      setNextPage(data.next);
+      setPreviousPage(data.previous);
+      setTotalCount(data.count);
+
+    }catch(error){
+      console.log("Error fetching leave data:",error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleApprove = async (leaveId) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+
+      const response = await fetch (
+        `http://127.0.0.1:8000/api/hr/leaves/${leaveId}/approve`,
+        {
+          method:"PATCH",
+          headers:{
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if(!response.ok){
+        alert(data.message);
+        return;
+      }
+
+      alert(data.message);
+
+      closeModal();
+
+      fetchLeaveData();
+    }catch(error){
+      console.error(error);
+      alert("Something went wrong.")
+    }
+  };
+
+  const handleReject = async (leaveId) => {
+    try{
+      const token = localStorage.getItem("accessToken");
+
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/hr/leaves/${leaveId}/reject`,
+        {
+          method:"PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if(!response.ok){
+        alert(data.message);
+        return;
+      }
+
+      alert(data.message);
+
+      closeModal();
+
+      fetchLeaveData();
+    }catch(error){
+      console.error(error);
+      alert("Something went wrong.")
+    }
+  };
 
   // Summary Cards Data
   const summaryCards = [
-    { title: "Total Leave Requests", value: summary.total, icon: FaLeaf },
-    { title: "Pending Requests", value: summary.pending, icon: FaClock },
-    { title: "Approved Requests", value: summary.approved, icon: FaCheckCircle },
-    { title: "Rejected Requests", value: summary.rejected, icon: FaTimesCircle },
+    { title: "Total Leave Requests", value: summary?.total || 0, icon: FaLeaf },
+    { title: "Pending Requests", value: summary?.pending || 0, icon: FaClock },
+    { title: "Approved Requests", value: summary?.approved || 0, icon: FaCheckCircle },
+    { title: "Rejected Requests", value: summary?.rejected || 0, icon: FaTimesCircle },
   ];
 
   // Leave Types
   const leaveTypes = [
     "All Types",
-    "Casual Leave",
-    "Sick Leave",
-    "Privilege Leave",
+    ...new Set(leaveRequests.map(item => item.leave_type))
   ];
 
   // Statuses
@@ -50,20 +159,20 @@ export default function Leave() {
 
   // Filtered leaves
   const filteredLeaves = leaveRequests.filter((leave) => {
-    const matchesSearch = leave.employeeName
-      .toLowerCase()
+    const matchesSearch = leave.employee_name
+      ?.toLowerCase()
       .includes(searchTerm.toLowerCase())
       
       ||
 
-      leave.employeeId
-      .toLowerCase()
+      leave.employee_id
+      ?.toLowerCase()
       .includes(searchTerm.toLowerCase());
 
     const matchesType =
       selectedLeaveType === "" ||
       selectedLeaveType === "All Types" ||
-      leave.leaveType === selectedLeaveType;
+      leave.leave_type === selectedLeaveType;
     const matchesStatus =
       selectedStatus === "" ||
       selectedStatus === "All Status" ||
@@ -113,7 +222,11 @@ export default function Leave() {
         return "bg-slate-100 text-slate-700";
     }
   };
+  console.log(summaryCards);
 
+  if (loading) {
+  return <div>Loading...</div>;
+  }
   return (
     <div className="space-y-8 px-6 py-8">
       {/* Page Title Section */}
@@ -252,25 +365,25 @@ export default function Leave() {
                   className="border-b border-slate-100 transition-all duration-300 hover:bg-[#F4F0FB]"
                 >
                   <td className="px-4 py-4 text-sm font-semibold text-slate-900">
-                    {leave.employeeName}
+                    {leave.employee_name}
                   </td>
                   <td className="px-4 py-4 text-sm text-slate-600">
-                    {leave.employeeId}
+                    {leave.employee_id}
                   </td>
                   <td className="px-4 py-4 text-sm text-slate-900">
                     <div className="flex items-center gap-2">
                       <FaLeaf className="text-[#36136E]" />
-                      {leave.leaveType}
+                      {leave.leave_type}
                     </div>
                   </td>
 
                   <td className="px-4 py-4 text-sm text-slate-600">
-                    {new Date(leave.startDate).toLocaleDateString("en-US", {
+                    {new Date(leave.start_date).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
                     })}{" "}
                     -{" "}
-                    {new Date(leave.endDate).toLocaleDateString("en-US", {
+                    {new Date(leave.end_date).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
                     })}
@@ -303,6 +416,7 @@ export default function Leave() {
                         {leave.status === "Pending" && (
                           <>
                             <button
+                              onClick={() => handleApprove(leave.id)}
                               className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-red-500 hover:bg-red-50 hover:text-green-600"
                               title="Approve"
                             >
@@ -310,6 +424,7 @@ export default function Leave() {
                             </button>
 
                             <button
+                            onClick={() => handleReject(leave.id)}
                               className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-red-500 hover:bg-red-50 hover:text-red-600"
                               title="Reject"
                             >
@@ -335,9 +450,9 @@ export default function Leave() {
               <div className="mb-3 flex items-start justify-between">
                 <div>
                   <p className="font-semibold text-slate-900">
-                    {leave.employeeName}
+                    {leave.employee_name}
                   </p>
-                  <p className="text-xs text-slate-500">{leave.employeeId}</p>
+                  <p className="text-xs text-slate-500">{leave.employee_id}</p>
                 </div>
                 <span
                   className={`rounded-full px-2 py-1 text-xs font-semibold ${getStatusColor(
@@ -350,7 +465,7 @@ export default function Leave() {
               <div className="mb-3 space-y-1 text-xs text-slate-600">
                 <p className="flex items-center gap-2">
                   <FaLeaf className="text-[#36136E]" />
-                  {leave.leaveType}
+                  {leave.leave_type}
                 </p>
                 <p>{leave.reason}</p>
               </div>
@@ -365,12 +480,16 @@ export default function Leave() {
 
                   {leave.status === "Pending" && (
                     <>
-                      <button className="flex-1 rounded-lg bg-green-100 py-2 text-sm font-semibold text-green-700 hover:bg-green-600 hover:text-white">
+                      <button 
+                      onClick={() => handleApprove(leave.id)}
+                      className="flex-1 rounded-lg bg-green-100 py-2 text-sm font-semibold text-green-700 hover:bg-green-600 hover:text-white">
                         <FaCheck className="inline mr-1" />
                         Approve
                       </button>
 
-                      <button className="flex-1 rounded-lg bg-red-100 py-2 text-sm font-semibold text-red-700 hover:bg-red-600 hover:text-white">
+                      <button 
+                      onClick={() => handleReject(leave.id)}
+                      className="flex-1 rounded-lg bg-red-100 py-2 text-sm font-semibold text-red-700 hover:bg-red-600 hover:text-white">
                         <FaTimes className="inline mr-1" />
                         Reject
                       </button>
@@ -387,6 +506,28 @@ export default function Leave() {
             <p className="text-slate-600">No leave requests found</p>
           </div>
         )}
+      </div>
+
+      <div className="mt-6 flex items-center justify-between">
+        <button
+          disabled={!previousPage}
+          onClick={() => setCurrentPage((prev) => prev-1)}
+          className="rounded-xl border px-4 py-2 disabled:opacity-50"
+        >
+          Previous
+        </button>
+
+        <p className="text-sm text-slate-600">
+          Page {currentPage}
+        </p>
+
+        <button
+          disabled={!nextPage}
+          onClick={() => setCurrentPage((prev) => prev+1)}
+          className="rounded-xl border px-4 py-2 disabled:opacity-50"
+        >
+            Next
+        </button>
       </div>
 
       {/* Leave Details Modal */}
@@ -422,7 +563,7 @@ export default function Leave() {
                           Employee Name
                         </p>
                         <p className="text-sm font-semibold text-slate-900">
-                          {selectedLeave.employeeName}
+                          {selectedLeave.employee_name}
                         </p>
                       </div>
                       <div className="rounded-2xl bg-[#F4F0FB] p-4">
@@ -430,7 +571,7 @@ export default function Leave() {
                           Employee ID
                         </p>
                         <p className="text-sm font-semibold text-slate-900">
-                          {selectedLeave.employeeId}
+                          {selectedLeave.employee_id}
                         </p>
                       </div>
                       <div className="rounded-2xl bg-[#F4F0FB] p-4 sm:col-span-2">
@@ -457,7 +598,7 @@ export default function Leave() {
                           Leave Type
                         </p>
                         <p className="text-sm font-semibold text-slate-900">
-                          {selectedLeave.leaveType}
+                          {selectedLeave.leave_type}
                         </p>
                       </div>
                       
@@ -467,7 +608,7 @@ export default function Leave() {
                           Start Date
                         </p>
                         <p className="text-sm font-semibold text-slate-900">
-                          {new Date(selectedLeave.startDate).toLocaleDateString(
+                          {new Date(selectedLeave.start_date).toLocaleDateString(
                             "en-US",
                             { year: "numeric", month: "long", day: "numeric" }
                           )}
@@ -479,7 +620,7 @@ export default function Leave() {
                           End Date
                         </p>
                         <p className="text-sm font-semibold text-slate-900">
-                          {new Date(selectedLeave.endDate).toLocaleDateString(
+                          {new Date(selectedLeave.end_date).toLocaleDateString(
                             "en-US",
                             { year: "numeric", month: "long", day: "numeric" }
                           )}
@@ -516,7 +657,7 @@ export default function Leave() {
                         </span>
                         <p className="text-xs text-slate-600">
                           Submitted on{" "}
-                          {new Date(selectedLeave.submittedDate).toLocaleDateString(
+                          {new Date(selectedLeave.applied_on).toLocaleDateString(
                             "en-US",
                             { year: "numeric", month: "short", day: "numeric" }
                           )}
@@ -528,11 +669,15 @@ export default function Leave() {
                   {/* Action Buttons */}
                   {selectedLeave.status === "Pending" && (
                     <div className="flex gap-3 border-t border-slate-200 pt-6">
-                      <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-green-600 py-3 font-semibold text-white transition-all duration-300 hover:bg-green-700">
+                      <button 
+                      onClick={() => handleApprove(selectedLeave.id)}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-green-600 py-3 font-semibold text-white transition-all duration-300 hover:bg-green-700">
                         <FaCheck className="text-lg" />
                         Approve Leave
                       </button>
-                      <button className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-red-600 py-3 font-semibold text-white transition-all duration-300 hover:bg-red-700">
+                      <button 
+                      onClick={() => handleReject(selectedLeave.id)}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-red-600 py-3 font-semibold text-white transition-all duration-300 hover:bg-red-700">
                         <FaTimes className="text-lg" />
                         Reject Leave
                       </button>
@@ -554,43 +699,6 @@ export default function Leave() {
         </div>
       )}
 
-      {/* Recent Activity Section */}
-      <div className="rounded-3xl bg-white p-6 shadow-sm">
-        <h3 className="mb-6 text-lg font-bold text-slate-900">
-          Recent Leave Activities
-        </h3>
-
-        <div className="space-y-4">
-          {activities.map((activity) => (
-            <div
-              key={activity.id}
-              className="flex items-start gap-4 border-l-4 border-[#36136E] py-2 pl-4 transition-all duration-300 hover:pl-6"
-            >
-              <div
-                className={`rounded-full p-2.5 flex-shrink-0 ${getActivityColor(
-                  activity.action
-                )}`}
-              >
-                <activity.icon className="text-lg" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-slate-900">
-                  {activity.action === "approved" && (
-                    <>Leave approved for <strong>{activity.employeeName}</strong></>
-                  )}
-                  {activity.action === "rejected" && (
-                    <>Leave rejected for <strong>{activity.employeeName}</strong></>
-                  )}
-                  {activity.action === "submitted" && (
-                    <><strong>{activity.leaveType}</strong> request submitted by <strong>{activity.employeeName}</strong></>
-                  )}
-                </p>
-                <p className="mt-1 text-xs text-slate-500">{activity.timestamp}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
