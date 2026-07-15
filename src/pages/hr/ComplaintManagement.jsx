@@ -27,7 +27,7 @@ export default function ComplaintManagement() {
   const [complaintsList, setComplaintsList] = useState([]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/complaints/hr/list/",{
+    fetch("http://127.0.0.1:8000/api/hr/complaints/list/",{
 
       headers:{
         Authorization:`Bearer ${localStorage.getItem("accessToken")}`
@@ -86,7 +86,7 @@ export default function ComplaintManagement() {
 
   // Filtered complaints
   const filteredComplaints = complaintsList.filter((complaint) => {
-    const matchesSearch = complaint.employeeName
+    const matchesSearch = complaint.employee_name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesStatus =
@@ -110,10 +110,18 @@ export default function ComplaintManagement() {
         method:"PATCH",
         headers:{
           "Content-Type":"application/json",
-          
-        }
+          Authorization:`Bearer ${localStorage.getItem("accessToken")}`
+        },
+
+        body: JSON.stringify({ 
+
+          status: statusUpdate
+
+        })
       }
-    )
+    );
+
+    loadComplaints();
   }
 
   const handleSelectComplaint = (complaint) => {
@@ -270,10 +278,10 @@ export default function ComplaintManagement() {
                       {complaint.id}
                     </td>
                     <td className="px-4 py-4 text-sm text-slate-900">
-                      {complaint.employeeName}
+                      {complaint.employee_name}
                     </td>
                     <td className="px-4 py-4 text-sm text-slate-600">
-                      {complaint.type}
+                      {complaint.category}
                     </td>
                     <td className="px-4 py-4 text-sm">
                       <span
@@ -312,7 +320,7 @@ export default function ComplaintManagement() {
                 <div className="mb-3 flex items-start justify-between">
                   <div>
                     <p className="font-semibold text-slate-900">
-                      {complaint.employeeName}
+                      {complaint.employee_name}
                     </p>
                     <p className="text-xs text-slate-500">{complaint.id}</p>
                   </div>
@@ -325,7 +333,7 @@ export default function ComplaintManagement() {
                   </span>
                 </div>
                 <div className="mb-3 space-y-1 text-xs text-slate-600">
-                  <p><strong>Type:</strong> {complaint.type}</p>
+                  <p><strong>Type:</strong> {complaint.category}</p>
                 </div>
 
               </div>
@@ -356,7 +364,7 @@ export default function ComplaintManagement() {
                     Employee Name
                   </p>
                   <p className="text-sm font-semibold text-slate-900">
-                    {selectedComplaint.employeeName}
+                    {selectedComplaint.employee_name}
                   </p>
                 </div>
 
@@ -367,7 +375,7 @@ export default function ComplaintManagement() {
                     Complaint Type
                   </p>
                   <p className="text-sm font-semibold text-slate-900">
-                    {selectedComplaint.type}
+                    {selectedComplaint.category}
                   </p>
                 </div>
 
@@ -389,7 +397,7 @@ export default function ComplaintManagement() {
                     Date Submitted
                   </p>
                   <p className="text-sm text-slate-900">
-                    {new Date(selectedComplaint.dateSubmitted).toLocaleDateString(
+                    {new Date(selectedComplaint.created_at).toLocaleDateString(
                       "en-US",
                       { year: "numeric", month: "long", day: "numeric" }
                     )}
