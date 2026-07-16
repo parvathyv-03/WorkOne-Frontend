@@ -26,20 +26,31 @@ export default function ComplaintManagement() {
   const [statusUpdate, setStatusUpdate] = useState("");
   const [complaintsList, setComplaintsList] = useState([]);
 
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/hr/complaints/list/",{
+  const [summary,setSummary] = useState({
+    total_complaints: 0,
+    pending:0,
+    resolved:0,
+    escalated:0,
+  });
 
+  const loadComplaints = () => {
+    fetch("http://127.0.0.1:8000/api/hr/complaints/list/",{
       headers:{
-        Authorization:`Bearer ${localStorage.getItem("accessToken")}`
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
       }
     })
 
-    .then(res=>res.json())
-    .then(data=>{
+    .then(res => res.json())
+    .then(data => {
       setComplaintsList(data.complaints);
+      setSummary(data.summary);
     });
-  },[]);
+  };
 
+  useEffect(() => {
+    loadComplaints();
+  },[]);
+  
   // Recent Activity Data
   const activities = [
     {
@@ -74,10 +85,10 @@ export default function ComplaintManagement() {
 
   // Summary Cards Data
   const summaryCards = [
-    { title: "Total Complaints", value: "42", icon: FaExclamationCircle },
-    { title: "Pending", value: "8", icon: FaClock },
-    { title: "Resolved", value: "28", icon: FaCheckCircle },
-    { title: "Escalated", value: "6", icon: FaChevronUp },
+    { title: "Total Complaints", value: summary.total, icon: FaExclamationCircle },
+    { title: "Pending", value: summary.pending, icon: FaClock },
+    { title: "Resolved", value: summary.resolved, icon: FaCheckCircle },
+    { title: "Escalated", value: summary.escalated, icon: FaChevronUp },
   ];
 
   // Status options
@@ -104,7 +115,7 @@ export default function ComplaintManagement() {
 
   const handleUpdateStatus = async()=> {
     await fetch(
-      `http://127.0.0.1:8000/api/complaints/hr/update/${selectedComplaint.id}/`,
+      `http://127.0.0.1:8000/api/hr/complaints/update/${selectedComplaint.id}/`,
 
       {
         method:"PATCH",
