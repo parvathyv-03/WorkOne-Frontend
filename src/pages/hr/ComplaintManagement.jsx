@@ -25,6 +25,31 @@ export default function ComplaintManagement() {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [statusUpdate, setStatusUpdate] = useState("");
   const [complaintsList, setComplaintsList] = useState([]);
+  const [activities,setActivities] = useState([]);
+
+  const loadActivities = async () => {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/hr/complaints/activity/",
+        {
+          headers:{
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if (!response.ok){
+        throw new Error("Failed to fetch activities");
+      }
+
+      const data = await response.json();
+      console.log(data.results[0])
+
+      setActivities(data.results);
+    }catch(error){
+      console.error("Error loading activities:",error);
+    }
+  };
 
   const [summary,setSummary] = useState({
     total_complaints: 0,
@@ -49,39 +74,9 @@ export default function ComplaintManagement() {
 
   useEffect(() => {
     loadComplaints();
+    loadActivities();
   },[]);
-  
-  // Recent Activity Data
-  const activities = [
-    {
-      id: 1,
-      complaint: "CMP102",
-      action: "moved to Resolved",
-      timestamp: "2 hours ago",
-      icon: FaCheckCircle,
-    },
-    {
-      id: 2,
-      complaint: "CMP105",
-      action: "escalated",
-      timestamp: "4 hours ago",
-      icon: FaArrowUp,
-    },
-    {
-      id: 3,
-      complaint: "CMP110",
-      action: "assigned for review",
-      timestamp: "6 hours ago",
-      icon: FaUser,
-    },
-    {
-      id: 4,
-      complaint: "CMP108",
-      action: "status updated to In Review",
-      timestamp: "1 day ago",
-      icon: FaEdit,
-    },
-  ];
+
 
   // Summary Cards Data
   const summaryCards = [
@@ -156,11 +151,19 @@ export default function ComplaintManagement() {
   };
 
   
-  const getActivityColor = (action) => {
-    if (action.includes("Resolved")) return "bg-green-100 text-green-700";
-    if (action.includes("escalated")) return "bg-red-100 text-red-700";
-    if (action.includes("assigned")) return "bg-blue-100 text-blue-700";
+  const getActivityColor = (step) => {
+    if (step.includes("Resolved")) return "bg-green-100 text-green-700";
+    if (step.includes("Escalated")) return "bg-red-100 text-red-700";
+    if (step.includes("Review")) return "bg-blue-100 text-blue-700";
     return "bg-slate-100 text-slate-700";
+  };
+
+  const getActivityIcon = (step) => {
+    if(step.includes("Resolved")) return FaCheckCircle;
+    if(step.includes("Escalated")) return FaChevronUp;
+    if(step.includes("Review")) return FaEdit;
+
+    return FaHistory;
   };
 
   return (
@@ -456,29 +459,31 @@ export default function ComplaintManagement() {
               Recent Activity
             </h3>
             <div className="space-y-3">
-              {activities.map((activity) => (
+              {activities.map((activity) => {
+                const ActivityIcon = getActivityIcon(activity.step);
+
+                return (
                 <div
                   key={activity.id}
                   className="flex items-start gap-3 rounded-2xl border-l-4 border-[#36136E] bg-slate-50 p-3 transition-all duration-300 hover:bg-slate-100"
                 >
-                  <div
-                    className={`rounded-full p-2 flex-shrink-0 ${getActivityColor(
-                      activity.action
-                    )}`}
-                  >
-                    <activity.icon className="text-sm" />
+                  <div className={`rounded-full p-2 ${getActivityColor(activity.step)}`}>
+                    <ActivityIcon className="text-sm"/>
                   </div>
+
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-slate-900 break-words">
-                      Complaint <strong>{activity.complaint}</strong>{" "}
+                      Complaint <strong>#{activity.complaint_id}</strong> {""}
+                      {activity.step}
                       {activity.action}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
-                      {activity.timestamp}
+                      {new Date(activity.created_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
