@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FaUsers,
   FaCheckCircle,
@@ -24,125 +24,98 @@ export default function AttendanceTracking() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
 
+  const [attendanceRecords,setAttendanceRecords] = useState([]);
+  const [analytics,setAnalytics] = useState({
+    attendance_rate: 0,
+    average_working_hours:0,
+    check_in_employees:0,
+  });
+
+  const [summary,setSummary] = useState({
+    total_employees:0,
+    present_today:0,
+    late_today:0,
+    absent_today:0,
+  })
+
+  const loadAnalytics = async () => {
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/hr/attendance/analytics/",
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+    setAnalytics(data);
+  };
+
+  const loadSummary = async () => {
+     const response = await fetch(
+      "http://127.0.0.1:8000/api/hr/attendance/summary/",
+      {
+        headers:{
+          Authorization:`Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+     );
+
+     const data = await response.json();
+     console.log(data);
+     setSummary(data);
+  };
+
+  const loadAttendanceRecords = async () => {
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/hr/attendance/list/",
+      {
+        headers:{
+          Authorization:`Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+    console.log(data);
+    setAttendanceRecords(data);
+  };
+
+  useEffect(() => {
+    loadAnalytics();
+    loadSummary();
+    loadAttendanceRecords();
+  },[]);
+
   // Summary Cards Data
   const summaryCards = [
-    { title: "Total Employees", value: "124", icon: FaUsers },
-    { title: "Present Today", value: "108", icon: FaCheckCircle },
-    { title: "Late Arrivals", value: "7", icon: FaClock },
-    { title: "Absent Employees", value: "9", icon: FaTimesCircle },
+    { title: "Total Employees", value: summary.total_employees, icon: FaUsers },
+    { title: "Present Today", value: summary.present_today, icon: FaCheckCircle },
+    { title: "Late Arrivals", value: summary.late_today, icon: FaClock },
+    { title: "Absent Employees", value: summary.absent_today, icon: FaTimesCircle },
   ];
 
-  // Attendance Data
-  const attendanceRecords = [
-    {
-      id: "EMP001",
-      name: "John Smith",
-      department: "IT",
-      checkIn: "09:00 AM",
-      checkOut: "06:00 PM",
-      hoursWorked: "9h",
-      attendanceStatus: "Present",
-      onlineStatus: "Online",
-      punctuality: "On Time",
-    },
-    {
-      id: "EMP002",
-      name: "Sarah Wilson",
-      department: "HR",
-      checkIn: "09:25 AM",
-      checkOut: "06:00 PM",
-      hoursWorked: "8.5h",
-      attendanceStatus: "Present",
-      onlineStatus: "Online",
-      punctuality: "Late",
-    },
-    {
-      id: "EMP003",
-      name: "Michael Brown",
-      department: "Finance",
-      checkIn: "--",
-      checkOut: "--",
-      hoursWorked: "0h",
-      attendanceStatus: "Absent",
-      onlineStatus: "Offline",
-      punctuality: "Absent",
-    },
-    {
-      id: "EMP004",
-      name: "Emily Davis",
-      department: "Marketing",
-      checkIn: "09:05 AM",
-      checkOut: "05:45 PM",
-      hoursWorked: "8.4h",
-      attendanceStatus: "Present",
-      onlineStatus: "Offline",
-      punctuality: "On Time",
-    },
-    {
-      id: "EMP005",
-      name: "David Martinez",
-      department: "IT",
-      checkIn: "08:55 AM",
-      checkOut: "06:15 PM",
-      hoursWorked: "9.3h",
-      attendanceStatus: "Present",
-      onlineStatus: "Online",
-      punctuality: "On Time",
-    },
-    {
-      id: "EMP006",
-      name: "Jessica Anderson",
-      department: "Operations",
-      checkIn: "09:30 AM",
-      checkOut: "06:00 PM",
-      hoursWorked: "8.5h",
-      attendanceStatus: "Present",
-      onlineStatus: "Online",
-      punctuality: "Late",
-    },
-    {
-      id: "EMP007",
-      name: "Robert Taylor",
-      department: "Finance",
-      checkIn: "--",
-      checkOut: "--",
-      hoursWorked: "0h",
-      attendanceStatus: "Absent",
-      onlineStatus: "Offline",
-      punctuality: "Absent",
-    },
-    {
-      id: "EMP008",
-      name: "Lisa White",
-      department: "HR",
-      checkIn: "09:10 AM",
-      checkOut: "06:05 PM",
-      hoursWorked: "8.9h",
-      attendanceStatus: "Present",
-      onlineStatus: "Online",
-      punctuality: "On Time",
-    },
-  ];
 
   // Analytics Data
   const analyticsCards = [
     {
       title: "Attendance Rate",
-      value: "92%",
+      value: `${analytics.attendance_rate}%`,
       icon: FaPercent,
       backgroundColor: "bg-blue-100",
       textColor: "text-blue-700",
     },
     {
       title: "Average Working Hours",
-      value: "8.6h",
+      value: `${analytics.average_working_hours}h`,
       icon: FaClock,
       backgroundColor: "bg-green-100",
       textColor: "text-green-700",
     },
     {
-      title: "Employees Online",
-      value: "56",
+      title: "Employees ",
+      value: analytics.check_in_employees,
       icon: FaHeartbeat,
       backgroundColor: "bg-purple-100",
       textColor: "text-purple-700",
@@ -191,15 +164,6 @@ export default function AttendanceTracking() {
     "Operations",
   ];
 
-  // Statuses
-  const statuses = [
-    "All Status",
-    "Present",
-    "Absent",
-    "Late",
-    "Online",
-    "Offline",
-  ];
 
   // Filtered records
   const filteredRecords = attendanceRecords.filter((record) => {
@@ -210,14 +174,8 @@ export default function AttendanceTracking() {
       selectedDepartment === "" ||
       selectedDepartment === "All Departments" ||
       record.department === selectedDepartment;
-    const matchesStatus =
-      selectedStatus === "" ||
-      selectedStatus === "All Status" ||
-      record.attendanceStatus === selectedStatus ||
-      record.onlineStatus === selectedStatus ||
-      record.punctuality === selectedStatus;
-
-    return matchesSearch && matchesDepartment && matchesStatus;
+    
+    return matchesSearch && matchesDepartment ;
   });
 
   const handleReset = () => {
@@ -234,16 +192,8 @@ export default function AttendanceTracking() {
           return "bg-green-100 text-green-700";
         case "Absent":
           return "bg-red-100 text-red-700";
-        default:
-          return "bg-slate-100 text-slate-700";
-      }
-    }
-    if (type === "online") {
-      switch (status) {
-        case "Online":
-          return "bg-blue-100 text-blue-700";
-        case "Offline":
-          return "bg-gray-100 text-gray-700";
+        case "Late":
+          return "bg-orange-100 text-orange-700";
         default:
           return "bg-slate-100 text-slate-700";
       }
@@ -343,24 +293,7 @@ export default function AttendanceTracking() {
               ))}
             </select>
           </div>
-
-          {/* Status Dropdown */}
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
-              Status
-            </label>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-4 text-slate-900 outline-none transition-all duration-300 focus:border-[#36136E] focus:ring-2 focus:ring-[#F4F0FB]"
-            >
-              {statuses.map((status) => (
-                <option key={status} value={status === "All Status" ? "" : status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </div>
+          
 
           {/* Date Picker */}
           <div>
@@ -427,9 +360,6 @@ export default function AttendanceTracking() {
                   Attendance
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
-                  Online Status
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
                   Punctuality
                 </th>
               </tr>
@@ -476,31 +406,12 @@ export default function AttendanceTracking() {
                   <td className="px-4 py-4 text-sm">
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeColor(
-                        record.attendanceStatus,
+                        record.status,
                         "attendance"
                       )}`}
                     >
-                      {record.attendanceStatus}
+                      {record.status}
                     </span>
-                  </td>
-                  <td className="px-4 py-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <FaCircle
-                        className={`text-xs ${
-                          record.onlineStatus === "Online"
-                            ? "text-blue-600"
-                            : "text-gray-400"
-                        }`}
-                      />
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeColor(
-                          record.onlineStatus,
-                          "online"
-                        )}`}
-                      >
-                        {record.onlineStatus}
-                      </span>
-                    </div>
                   </td>
                   <td className="px-4 py-4 text-sm">
                     <span
@@ -539,11 +450,11 @@ export default function AttendanceTracking() {
                 </div>
                 <span
                   className={`rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(
-                    record.attendanceStatus,
+                    record.status,
                     "attendance"
                   )}`}
                 >
-                  {record.attendanceStatus}
+                  {record.status}
                 </span>
               </div>
               <div className="mb-3 space-y-2 text-xs text-slate-600">
@@ -551,17 +462,6 @@ export default function AttendanceTracking() {
                 <p><strong>Check In:</strong> {record.checkIn}</p>
                 <p><strong>Check Out:</strong> {record.checkOut}</p>
                 <p><strong>Hours Worked:</strong> {record.hoursWorked}</p>
-                <div className="flex items-center gap-2">
-                  <strong>Online:</strong>
-                  <FaCircle
-                    className={`text-xs ${
-                      record.onlineStatus === "Online"
-                        ? "text-blue-600"
-                        : "text-gray-400"
-                    }`}
-                  />
-                  {record.onlineStatus}
-                </div>
                 <p><strong>Punctuality:</strong> {record.punctuality}</p>
               </div>
             </div>

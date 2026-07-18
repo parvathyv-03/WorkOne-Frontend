@@ -125,7 +125,7 @@ export default function Attendance() {
      .then(res => res.json())
      .then(data => {
       setCheckedIn(
-        data.checked_in &&
+        data.check_in &&
         !data.checked_out
       );
 
