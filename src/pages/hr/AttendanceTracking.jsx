@@ -17,6 +17,7 @@ import {
   FaInfoCircle,
   FaUser,
 } from "react-icons/fa";
+import WeeklyAttendanceChart from "./WeeklyAttendanceChart";
 
 export default function AttendanceTracking() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,6 +25,7 @@ export default function AttendanceTracking() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
 
+  const [weeklyData,setWeeklyData] = useState([]);
   const [attendanceRecords,setAttendanceRecords] = useState([]);
   const [analytics,setAnalytics] = useState({
     attendance_rate: 0,
@@ -79,15 +81,34 @@ export default function AttendanceTracking() {
 
     const data = await response.json();
     console.log(data);
+    console.log(Array.isArray(data));
     setAttendanceRecords(data);
   };
+
+  const loadWeeklyGraph = async () => {
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/hr/attendance/weekly-graph/",
+      {
+        headers:{
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+    console.log(data);
+    setWeeklyData(data);
+  };
+
 
   useEffect(() => {
     loadAnalytics();
     loadSummary();
     loadAttendanceRecords();
+    loadWeeklyGraph();
   },[]);
 
+  
   // Summary Cards Data
   const summaryCards = [
     { title: "Total Employees", value: summary.total_employees, icon: FaUsers },
@@ -95,7 +116,6 @@ export default function AttendanceTracking() {
     { title: "Late Arrivals", value: summary.late_today, icon: FaClock },
     { title: "Absent Employees", value: summary.absent_today, icon: FaTimesCircle },
   ];
-
 
   // Analytics Data
   const analyticsCards = [
@@ -122,43 +142,12 @@ export default function AttendanceTracking() {
     },
   ];
 
-  // Alerts Data
-  const alerts = [
-    {
-      id: 1,
-      type: "late",
-      message: "Sarah Wilson checked in late by 25 minutes.",
-      timestamp: "Today at 9:25 AM",
-      icon: FaExclamationTriangle,
-    },
-    {
-      id: 2,
-      type: "absent",
-      message: "Michael Brown marked absent today.",
-      timestamp: "Today at 8:00 AM",
-      icon: FaTimesCircle,
-    },
-    {
-      id: 3,
-      type: "early",
-      message: "Emily Davis checked out early.",
-      timestamp: "Today at 5:45 PM",
-      icon: FaClock,
-    },
-    {
-      id: 4,
-      type: "completed",
-      message: "John Smith completed 9 working hours.",
-      timestamp: "Today at 6:00 PM",
-      icon: FaCheckCircle,
-    },
-  ];
 
   // Departments
   const departments = [
     "All Departments",
     "IT",
-    "HR",
+    "Human Resources",
     "Finance",
     "Marketing",
     "Operations",
@@ -255,6 +244,12 @@ export default function AttendanceTracking() {
         ))}
       </div>
 
+       {/* Weekly Attendance Graph */}
+
+      <div className="rounded-3xl bg-whie p-6 shadow-sm">
+        <WeeklyAttendanceChart data={weeklyData}/>
+      </div>
+
       {/* Filter Section */}
       <div className="rounded-3xl bg-white p-6 shadow-sm">
         <h3 className="mb-4 text-lg font-bold text-slate-900">Search & Filter</h3>
@@ -293,31 +288,10 @@ export default function AttendanceTracking() {
               ))}
             </select>
           </div>
-          
-
-          {/* Date Picker */}
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
-              Select Date
-            </label>
-            <div className="relative">
-              <FaCalendarAlt className="absolute left-3 top-3.5 text-slate-400" />
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-slate-900 outline-none transition-all duration-300 focus:border-[#36136E] focus:ring-2 focus:ring-[#F4F0FB]"
-              />
-            </div>
-          </div>
         </div>
 
         {/* Filter Buttons */}
         <div className="mt-4 flex flex-wrap gap-3">
-          <button className="flex items-center gap-2 rounded-2xl bg-[#36136E] px-6 py-2.5 font-semibold text-white transition-all duration-300 hover:bg-[#4A1D96]">
-            <FaFilter className="text-sm" />
-            Filter
-          </button>
           <button
             onClick={handleReset}
             className="rounded-2xl border-2 border-slate-300 px-6 py-2.5 font-semibold text-slate-700 transition-all duration-300 hover:border-[#36136E] hover:text-[#36136E]"
@@ -492,37 +466,6 @@ export default function AttendanceTracking() {
             <p className="text-3xl font-bold text-slate-900">{card.value}</p>
           </div>
         ))}
-      </div>
-
-      {/* Attendance Alerts Section */}
-      <div className="rounded-3xl bg-white p-6 shadow-sm">
-        <h3 className="mb-6 flex items-center gap-2 text-lg font-bold text-slate-900">
-          <FaBell className="text-[#36136E]" />
-          Attendance Alerts
-        </h3>
-
-        <div className="space-y-4">
-          {alerts.map((alert) => (
-            <div
-              key={alert.id}
-              className="flex items-start gap-4 rounded-2xl border-l-4 border-[#36136E] bg-slate-50 p-4 transition-all duration-300 hover:bg-slate-100"
-            >
-              <div
-                className={`rounded-full p-2.5 flex-shrink-0 ${getAlertColor(
-                  alert.type
-                )}`}
-              >
-                <alert.icon className="text-lg" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-slate-900">
-                  {alert.message}
-                </p>
-                <p className="mt-1 text-xs text-slate-500">{alert.timestamp}</p>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
