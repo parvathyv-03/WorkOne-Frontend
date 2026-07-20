@@ -24,6 +24,9 @@ export default function AttendanceTracking() {
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+  const [employeeId,setEmployeeId] = useState("");
+  const [month,setMonth] = useState("");
+  const [year,setYear] = useState("");
 
   const [weeklyData,setWeeklyData] = useState([]);
   const [attendanceRecords,setAttendanceRecords] = useState([]);
@@ -107,6 +110,28 @@ export default function AttendanceTracking() {
     loadAttendanceRecords();
     loadWeeklyGraph();
   },[]);
+
+  const handleGenerateReport = async () => {
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/hr/attendance/monthly-report/pdf/?employee_id=${employeeId}&month=${month}&year=${year}`,
+      {
+        headers:{
+          Authorization:`Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+
+    if(!response.ok){
+      const data = await response.json();
+      alert(data.message);
+      return;
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    window.open(url,"_blank");
+  };
 
   
   // Summary Cards Data
@@ -242,6 +267,62 @@ export default function AttendanceTracking() {
             <p className="text-3xl font-bold text-slate-900">{card.value}</p>
           </div>
         ))}
+      </div>
+
+            {/* Generate Monthly Report */}
+
+      <div className="rounded-3xl bg-white p-6 shadow-sm">
+        <h2 className="text-xl font-bold mb-6">
+          Monthly Attendance Report
+        </h2>
+
+        <div className="grid md:grid-cols-4 gap-4">
+          <input
+            type="text"
+            placeholder="Employee ID"
+            value={employeeId}
+            onChange={(e) => setEmployeeId(e.target.value)}
+            className="border rounded-xl px-4 py-3"
+          />
+
+          <select
+            value={month}
+            onChange={(e)=>setMonth(e.target.value)}
+            className="border rounded-xl px-4 py-3"
+          >
+            <option value="">Month</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+
+          </select>
+
+          <select
+            value={year}
+            onChange={(e) =>setYear(e.target.value)}
+            className="border rounded-xl px-4 py-3"
+          >
+            <option value="">Year</option>
+            <option>2025</option>
+            <option>2026</option>
+          </select>
+
+          <button
+            onClick={handleGenerateReport}
+            className="flex items-center gap-2 rounded-2xl bg-[#36136E] px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-[#4A1D96] hover:shadow-lg"
+          >
+              Generate Report
+          </button>
+        </div>
       </div>
 
        {/* Weekly Attendance Graph */}
@@ -397,6 +478,7 @@ export default function AttendanceTracking() {
                       {record.punctuality}
                     </span>
                   </td>
+                  
                 </tr>
               ))}
             </tbody>
