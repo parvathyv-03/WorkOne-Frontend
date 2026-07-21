@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FaBell,
   FaBullhorn,
@@ -12,81 +12,11 @@ import {
   FaTimes,
 } from "react-icons/fa";
 
-const summaryData = [
-  {
-    title: "Total Notifications",
-    count: "42",
-    icon: FaBell,
-    accent: "bg-[#F4F0FB] text-[#36136E]",
-  },
-  {
-    title: "HR Announcements",
-    count: "14",
-    icon: FaBullhorn,
-    accent: "bg-[#F4F0FB] text-[#36136E]",
-  },
-  {
-    title: "Leave Updates",
-    count: "11",
-    icon: FaCalendarAlt,
-    accent: "bg-[#F4F0FB] text-[#36136E]",
-  },
-  {
-    title: "Complaint Updates",
-    count: "7",
-    icon: FaExclamationCircle,
-    accent: "bg-[#F4F0FB] text-[#36136E]",
-  },
-];
-
-const notificationsList = [
-  {
-    title: "Annual Performance Review Schedule",
-    category: "HR Announcement",
-    priority: "High",
-    date: "June 19, 2026",
-    status: "Published",
-    message:
-      "Please review the updated schedule for the annual performance assessments and prepare your team accordingly.",
-    icon: FaRegCalendarAlt,
-  },
-  {
-    title: "New Leave Policy Update",
-    category: "Leave Update",
-    priority: "Medium",
-    date: "June 14, 2026",
-    status: "Draft",
-    message:
-      "A new leave policy has been introduced for flexible work arrangements. Check the details and share feedback.",
-    icon: FaCalendarAlt,
-  },
-  {
-    title: "Payroll Processing Reminder",
-    category: "System Notification",
-    priority: "Low",
-    date: "June 12, 2026",
-    status: "Published",
-    message:
-      "Payroll processing begins tomorrow. Ensure all time sheets and reimbursements are submitted by end of day.",
-    icon: FaRegPaperPlane,
-  },
-  {
-    title: "Complaint Resolution Update",
-    category: "Complaint Update",
-    priority: "High",
-    date: "June 10, 2026",
-    status: "Published",
-    message:
-      "The latest complaint resolution cases have been reviewed and updates are now available for affected employees.",
-    icon: FaClipboardList,
-  },
-];
-
 const categoryOptions = [
   "HR Announcement",
-  "System Notification",
-  "Leave Update",
-  "Complaint Update",
+  "System",
+  "Leave",
+  "Complaint",
 ];
 
 const priorityOptions = ["Low", "Medium", "High"];
@@ -97,11 +27,82 @@ const badgeStyles = {
 };
 
 export default function Notification() {
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState(categoryOptions[0]);
-  const [priority, setPriority] = useState("Low");
-  const [message, setMessage] = useState("");
-  const [preview, setPreview] = useState(notificationsList[0]);
+    const [title, setTitle] = useState("");
+    const [category, setCategory] = useState(categoryOptions[0]);
+    const [priority, setPriority] = useState("Low");
+    const [message, setMessage] = useState("");
+    const [notificationsList,setNotificationsList] = useState([]);
+    const [preview, setPreview] = useState(null);
+    const [summaryData,setSummaryData] = useState({
+      total_notifications:0,
+      hr_announcements:0,
+      leave_updates:0,
+      complaint_updates:0,
+      system_notifications:0,
+    });
+
+    const summaryCards = [
+    {
+      title:"Total Notifications",
+      count:summaryData.total_notifications,
+      icon:FaBell,
+      accent:"bg-[#F4F0FB] text-[#36136E]",
+    },
+    {
+      title:"HR Announcements",
+      count:summaryData.hr_announcements,
+      icon:FaBullhorn,
+      accent:"bg-[#F4F0FB] text-[#36136E]",
+    },
+    {
+      title:"Leave Updates",
+      count:summaryData.leave_updates,
+      icon:FaCalendarAlt,
+      accent:"bg-[#F4F0FB] text-[#36136E]",
+    },
+    {
+      title:"Complaint Updates",
+      count:summaryData.complaint_updates,
+      icon:FaExclamationCircle,
+      accent:"bg-[#F4F0FB] text-[#36136E]",
+    },
+  ];
+
+  const publishNotification = async () => {
+    try{
+      const response = await fetch (
+        "http://127.0.0.1:8000/api/hr/notifications/publish/",
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+            Authorization:`Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          body:JSON.stringify({
+            title,
+            description:message,
+            category,
+            priority,
+            status:"Published",
+          }),
+        }
+      );
+
+      if(response.ok){
+        alert("Notification published successfully.")
+
+        handleClear();
+        loadNotifications();
+      }else{
+        const error = await response.json();
+        console.log(error)
+      }
+
+    } catch(err){
+      console.log(err);
+    }
+  };
+
 
   const handleClear = () => {
     setTitle("");
@@ -109,6 +110,42 @@ export default function Notification() {
     setPriority("Low");
     setMessage("");
   };
+
+  const loadNotifications = async () => {
+    try{
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/hr/notifications/list/",
+        {
+          headers:{
+            Authorization:`Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if(!response.ok){
+        console.log("Failed to load notifications");
+        return;
+      }
+
+      const data = await response.json();
+
+      setSummaryData(data.summary);
+
+      setNotificationsList(data.notifications);
+
+      if(data.notifications.length > 0){
+        setPreview(data.notifications[0]);
+      } else {
+        setPreview(null);
+      }
+    }catch(error){
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    loadNotifications();
+  },[]);
 
   return (
     <div className="space-y-8 px-6 py-8 font-sans text-slate-900" style={{ fontFamily: "Poppins, sans-serif" }}>
@@ -125,7 +162,7 @@ export default function Notification() {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        {summaryData.map((item) => (
+        {summaryCards.map((item) => (
           <div
             key={item.title}
             className="rounded-3xl bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
@@ -206,7 +243,7 @@ export default function Notification() {
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <button className="inline-flex items-center justify-center rounded-3xl bg-[#36136E] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#2c0f5d]">
+            <button onClick={publishNotification} disabled={!title.trim() || !message.trim()} className="inline-flex items-center justify-center rounded-3xl bg-[#36136E] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#2c0f5d]">
               <FaCheckCircle className="mr-2" /> Publish Notification
             </button>
             <button
@@ -232,15 +269,19 @@ export default function Notification() {
           <div className="space-y-5 rounded-[2rem] border border-[#E6E0F6] bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-4">
               <div className="inline-flex items-center gap-3 rounded-3xl bg-[#F4F0FB] px-4 py-2 text-sm font-semibold text-[#36136E]">
-                <FaBullhorn /> {preview.category}
+                <FaBullhorn /> {preview?.category}
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-slate-900">{preview.title}</h3>
-            <p className="text-sm leading-7 text-slate-600">{preview.message}</p>
+            <h3 className="text-lg font-semibold text-slate-900">{preview?.title}</h3>
+            <p className="text-sm leading-7 text-slate-600">{preview?.description}</p>
             <div className="flex items-center justify-between text-sm text-slate-500">
-              <span>{preview.date}</span>
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#ECFDF5] px-3 py-1 text-xs font-semibold text-emerald-700">
-                <FaCheckCircle /> {preview.status}
+              <span>{preview?.created_at && new Date(preview.created_at).toLocaleDateString()}</span>
+              <span
+                className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
+                  preview ? badgeStyles[preview?.status] : ""
+                }`}
+              >
+                <FaCheckCircle /> {preview?.status}
               </span>
             </div>
           </div>
@@ -280,7 +321,7 @@ export default function Notification() {
                     <td className="px-4 py-4 text-slate-900 font-medium">{item.title}</td>
                     <td className="px-4 py-4">{item.category}</td>
                     <td className="px-4 py-4">{item.priority}</td>
-                    <td className="px-4 py-4">{item.date}</td>
+                    <td className="px-4 py-4">{new Date(item.created_at).toLocaleDateString()}</td>
                     <td className="px-4 py-4">
                       <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badgeStyles[item.status]}`}>
                         {item.status}
