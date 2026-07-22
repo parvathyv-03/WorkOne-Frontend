@@ -10,6 +10,7 @@ import {
   FaRegCalendarAlt,
   FaRegPaperPlane,
   FaTimes,
+  FaTrash,
 } from "react-icons/fa";
 
 const categoryOptions = [
@@ -140,6 +141,29 @@ export default function Notification() {
       }
     }catch(error){
       console.log(error);
+    }
+  };
+
+  const deleteNotification = async (groupId) => {
+    if(!window.confirm("Delete this notification?")) return;
+
+    try{
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/hr/notifications/delete/${groupId}/`,
+        {
+          method:"DELETE",
+          headers:{
+            Authorization:`Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if(response.ok){
+        alert("Notification deleted.");
+        loadNotifications();
+      }
+    }catch(err){
+      console.log(err);
     }
   };
 
@@ -309,6 +333,7 @@ export default function Notification() {
                   <th className="px-4 py-3">Priority</th>
                   <th className="px-4 py-3">Date</th>
                   <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -326,6 +351,17 @@ export default function Notification() {
                       <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badgeStyles[item.status]}`}>
                         {item.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteNotification(item.notification_group);
+                        }}
+                        className="runded-lg bg-red-100 px-3 py-2 text-red-600 hover:bg-red-200"
+                      >
+                        <FaTrash/>
+                      </button>
                     </td>
                   </tr>
                 ))}
