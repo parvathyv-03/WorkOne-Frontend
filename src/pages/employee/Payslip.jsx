@@ -42,8 +42,6 @@ export default function Payslip() {
   const iconMap = {
     "Net Salary": <HiOutlineCash className="h-6 w-6"/>,
     "Basic Salary": <HiOutlineDocumentText className="h-6 w-6"/>,
-    "Total Earnings": <FaChartLine className="h-6 w-6"/>,
-    "Total Deductions": <HiOutlineReceiptTax className="h-6 w-6"/>,
     "Current Month": <HiOutlineBadgeCheck className="h-6 w-6"/>,
   }
 
@@ -68,24 +66,29 @@ export default function Payslip() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-5">
-        {summaryData.map((item) => (
-          <div key={item.label} className="rounded-3xl bg-white p-6 shadow-md transition hover:shadow-xl">
-            <div className="flex items-center justify-between gap-4">
-              <div className="inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-50 text-blue-600">
-                {iconMap[item.label]}
+        {summaryData
+          .filter(
+            (item) =>
+              item.label !== "Total Earnings" &&
+              item.label !== "Total Deductions" &&
+              item.label !== "Current Month"
+          )
+          .map((item) => (
+            <div key={item.label} className="rounded-3xl bg-white p-6 shadow-md transition hover:shadow-xl">
+              <div className="flex items-center justify-between gap-4">
+                <div className="inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-50 text-blue-600">
+                  {iconMap[item.label]}
+                </div>
+                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">{item.label}</span>
               </div>
-              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">{item.label}</span>
+              <p className="mt-6 text-3xl font-semibold text-slate-900">
+                {item.label === "Current Month"
+                  ? item.value
+                  : formatCurrency(item.value)}
+              </p>
             </div>
-            <p className="mt-6 text-3xl font-semibold text-slate-900">
-              {item.label === "Current Month"
-                ? item.value
-                : formatCurrency(item.value)}
-            </p>
-          </div>
-        ))}
+          ))}
       </div>
-
-      
 
       <div className="grid gap-6 xl:grid-cols-[2fr_1fr]">
         <div className="rounded-3xl bg-white p-8 shadow-md">
