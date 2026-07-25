@@ -23,7 +23,7 @@ import Leave from "./pages/hr/Leave";
 import AttendanceTracking from "./pages/hr/AttendanceTracking";
 import ComplaintManagement from "./pages/hr/ComplaintManagement";
 import PayslipManagement from "./pages/hr/PayslipManagement";
-import Recruitment from "./pages/hr/Recruitment";
+import RecruitmentJobList from "./pages/hr/RecruitmentJobList";
 import ReportsAnalytics from "./pages/hr/ReportsAnalytics";
 import Notification from "./pages/hr/Notification";
 import ManageEmployeesHome from "./pages/hr/ManageEmployeesHome";
@@ -95,7 +95,7 @@ function App() {
             />
             <Route
               path="recruitment"
-              element={<Recruitment/>}
+              element={<RecruitmentJobList/>}
             />
             <Route
               path="reports"
