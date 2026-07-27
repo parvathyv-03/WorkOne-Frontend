@@ -71,35 +71,11 @@ const jobs = [
   },
 ];
 
+
+
 const statusOptions = ["All Jobs", "Open", "Hiring", "Closed"];
 const departmentOptions = ["Department", "Engineering", "HR", "Design", "Analytics"];
 
-const summaryCards = [
-  {
-    title: "Open Positions",
-    value: "12",
-    description: "Current active roles",
-    icon: FaBriefcase,
-  },
-  {
-    title: "Total Applications",
-    value: "168",
-    description: "Applications received",
-    icon: FaUsers,
-  },
-  {
-    title: "Interviews Scheduled",
-    value: "18",
-    description: "Upcoming interviews",
-    icon: FaCalendarAlt,
-  },
-  {
-    title: "Hired Candidates",
-    value: "7",
-    description: "Successful hires",
-    icon: FaCheckCircle,
-  },
-];
 
 function statusClasses(status) {
   switch (status) {
@@ -134,6 +110,12 @@ export default function RecruitmentJobList() {
     status: "Open",
   });
   const [formErrors, setFormErrors] = useState({});
+  const [summary,setSummary] =useState({
+    open_positions:0,
+    total_applications:0,
+    interviews_scheduled:0,
+    hired_candidates:0,
+  });
 
   const filteredJobs = visibleJobs.filter((job) => {
     const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -148,6 +130,33 @@ export default function RecruitmentJobList() {
     setStatusFilter("All Jobs");
     setDepartmentFilter("Department");
   };
+
+  const summaryCards = [
+    {
+      title: "Open Positions",
+      value: summary.open_positions,
+      description: "Current active roles",
+      icon: FaBriefcase,
+    },
+    {
+      title: "Total Applications",
+      value: summary.total_applications,
+      description: "Applications received",
+      icon: FaUsers,
+    },
+    {
+      title: "Interviews Scheduled",
+      value: summary.interviews_scheduled,
+      description: "Upcoming interviews",
+      icon: FaCalendarAlt,
+    },
+    {
+      title: "Hired Candidates",
+      value: summary.hired_candidates,
+      description: "Successful hires",
+      icon: FaCheckCircle,
+    },
+  ];
 
   const loadJobs = async () => {
     try {
@@ -169,6 +178,7 @@ export default function RecruitmentJobList() {
       const data = await response.json();
 
       setVisibleJobs(data.results);
+      setSummary(data.summary);
     }catch(error){
       console.error("Error loading jobs:",error);
     }finally{
@@ -180,10 +190,31 @@ export default function RecruitmentJobList() {
     loadJobs();
   },[]);
 
-  const confirmDelete = () => {
-    setVisibleJobs((currentJobs) => currentJobs.filter((job) => job.id !== jobToDelete.id));
+const confirmDelete = async () => {
+  try{
+    const token = localStorage.getItem("accessToken");
+
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/recruitment/jobs/${jobToDelete.id}/delete/`,
+      {
+        method:"DELETE",
+        headers:{
+          Authorization:`Bearer ${token}`,
+        },
+      }
+    );
+
+    if(!response.ok){
+      throw new Error("Failed to delete job.");
+    }
+
+    await loadJobs();
     setJobToDelete(null);
-  };
+
+  }catch(error){
+    console.error(error);
+  }
+};
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -198,6 +229,8 @@ export default function RecruitmentJobList() {
   };
 
   const handleCreateJob = async () => {
+    event.preventDefault();
+
   try{
     const token = localStorage.getItem("accessToken");
 
@@ -224,12 +257,31 @@ export default function RecruitmentJobList() {
       }
     );
 
+    const data = await response.json();
+
+    console.log(data);
+
     if(!response.ok){
-      throw new Error("failed to craete job");
+      console.error(data);
+      throw new Error("Failed to create job");
     }
 
     await loadJobs();
     closeCreateModal();
+
+    setFormData({
+      jobTitle: "",
+      department: "",
+      openings: "",
+      location: "",
+      employmentType: "",
+      experience: "",
+      salary: "",
+      description: "",
+      skills: "",
+      status: "Open",
+    });
+
   }catch(error){
     console.error(error);
   }

@@ -24,6 +24,7 @@ import AttendanceTracking from "./pages/hr/AttendanceTracking";
 import ComplaintManagement from "./pages/hr/ComplaintManagement";
 import PayslipManagement from "./pages/hr/PayslipManagement";
 import RecruitmentJobList from "./pages/hr/RecruitmentJobList";
+import RecruitmentJobDetails from "./pages/hr/RecruitmentJobDetails";
 import ReportsAnalytics from "./pages/hr/ReportsAnalytics";
 import Notification from "./pages/hr/Notification";
 import ManageEmployeesHome from "./pages/hr/ManageEmployeesHome";
@@ -98,6 +99,10 @@ function App() {
               element={<RecruitmentJobList/>}
             />
             <Route
+              path="recruitment/jobs/:id"
+              element={<RecruitmentJobDetails/>}
+            />
+            <Route
               path="reports"
               element={<ReportsAnalytics/>}
             />
@@ -107,6 +112,16 @@ function App() {
             />
             
           </Route>
+
+          <Route
+            path="/recruitment"
+            element={<RecruitmentJobList />}
+          />
+
+          <Route
+            path="/recruitment/jobs/:id"
+            element={<RecruitmentJobDetails />}
+          />
 
           {/* EMPLOYEE LAYOUT */}
           <Route
