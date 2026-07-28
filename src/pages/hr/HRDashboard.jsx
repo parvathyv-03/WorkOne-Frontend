@@ -15,7 +15,40 @@ import {
   FaComments,
 } from "react-icons/fa";
 
+import { useState,useEffect } from "react";
+
 export default function HRDashboard() {
+
+  const [dashboardData,setDashboardData] = useState(null);
+  const [loading,setLoading] = useState(true);
+
+  useEffect(() => {
+    loadDashboard();
+  },[]);
+
+  const loadDashboard = async () => {
+    try{
+      const token = localStorage.getItem("accessToken");
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/hr/dashboard/",
+        {
+          headers:{
+            Authorization:`Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      setDashboardData(data);
+    }catch(error){
+      console.error(error);
+    }finally{
+      setLoading(false);
+    }
+  };
+
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "short",
     month: "short",
@@ -24,36 +57,32 @@ export default function HRDashboard() {
   });
 
   const summaryCards = [
-    { title: "Total Employees", value: "124", icon: FaUsers },
-    { title: "Today's Attendance", value: "112", icon: FaCheckCircle },
-    { title: "Pending Leave Requests", value: "8", icon: FaCalendarAlt },
-    { title: "Open Complaints", value: "3", icon: FaExclamationTriangle },
-    { title: "Upcoming Interviews", value: "5", icon: FaUserTie },
-    { title: "Departments", value: "7", icon: FaBuilding },
+    { title: "Total Employees", value: dashboardData?.summary?.total_employees ?? 0, icon: FaUsers },
+    { title: "Today's Attendance", value: dashboardData?.summary?.today_attendance ?? 0, icon: FaCheckCircle },
+    { title: "Pending Leave Requests", value: dashboardData?.summary?.pending_leave_requests ?? 0, icon: FaCalendarAlt },
+    { title: "Open Complaints", value: dashboardData?.summary?.open_complaints ?? 0, icon: FaExclamationTriangle },
+    { title: "Upcoming Interviews", value: dashboardData?.summary?.upcoming_interviews ?? 0, icon: FaUserTie },
+    { title: "Departments", value: dashboardData?.summary?.departments ?? 0, icon: FaBuilding },
   ];
 
-  const departments = [
-    { name: "IT Department", count: 35 },
-    { name: "HR Department", count: 12 },
-    { name: "Finance Department", count: 18 },
-    { name: "Marketing Department", count: 22 },
-    { name: "Operations Department", count: 37 },
-  ];
+  const departments = dashboardData?.department_overview || [];
 
-  const recruitment = [
-    { stage: "Applications Received", count: 120 },
-    { stage: "Shortlisted", count: 35 },
-    { stage: "Interviews Scheduled", count: 15 },
-    { stage: "Offers Sent", count: 5 },
-  ];
+  const recruitment = dashboardData?.recruitment || [];
 
-  const notifications = [
-    { title: "New Leave Request", message: "John Doe submitted a leave request.", time: "10 minutes ago" },
-    { title: "Complaint Escalated", message: "Employee complaint requires review.", time: "1 hour ago" },
-    { title: "Payroll Generated", message: "June payroll has been processed.", time: "Today" },
-  ];
+  const notifications = dashboardData?.notifications || [];
 
-  
+  if(loading){
+    return(
+      <div className="text-center py-20 text-lg">
+        Loading Dashboard...
+      </div>
+    );
+  }
+
+  const maxDepartmentEmployees = Math.max(
+    ...departments.map((dept) => dept.count),
+    1
+  );
 
   return (
     <div className="space-y-8">
@@ -101,7 +130,7 @@ export default function HRDashboard() {
                 <div className="h-2 rounded-full bg-slate-200">
                   <div
                     className="h-2 rounded-full bg-[#36136E]"
-                    style={{ width: `${(dept.count / 37) * 100}%` }}
+                    style={{ width: `${(dept.count / maxDepartmentEmployees) * 100}%` }}
                   />
                 </div>
               </div>
@@ -116,7 +145,7 @@ export default function HRDashboard() {
               <div className="relative flex h-56 w-56 items-center justify-center rounded-full bg-[#F4F0FB]">
                 <div className="absolute inset-6 rounded-full bg-white" />
                 <div className="relative z-10 text-center">
-                  <p className="text-5xl font-bold text-[#36136E]">90%</p>
+                  <p className="text-5xl font-bold text-[#36136E]">{dashboardData.attendance.attendance_rate}%</p>
                   <p className="mt-2 text-sm uppercase tracking-[0.18em] text-slate-500">Attendance Rate</p>
                 </div>
               </div>
@@ -124,15 +153,15 @@ export default function HRDashboard() {
           </div>
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             <div className="rounded-3xl bg-[#F9F8FF] p-4 text-center">
-              <p className="text-2xl font-bold text-slate-900">112</p>
+              <p className="text-2xl font-bold text-slate-900">{dashboardData.attendance.Present}</p>
               <p className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">Present</p>
             </div>
             <div className="rounded-3xl bg-[#F4F0FB] p-4 text-center">
-              <p className="text-2xl font-bold text-slate-900">8</p>
+              <p className="text-2xl font-bold text-slate-900">{dashboardData.attendance.Late}</p>
               <p className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">Absent</p>
             </div>
             <div className="rounded-3xl bg-[#F4F0FB] p-4 text-center">
-              <p className="text-2xl font-bold text-slate-900">4</p>
+              <p className="text-2xl font-bold text-slate-900">{dashboardData.attendance.Absent}</p>
               <p className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">On Leave</p>
             </div>
           </div>
