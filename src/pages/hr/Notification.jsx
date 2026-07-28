@@ -42,6 +42,9 @@ export default function Notification() {
       system_notifications:0,
     });
 
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [notificationToDelete, setNotificationToDelete] = useState(null);
+
     const summaryCards = [
     {
       title:"Total Notifications",
@@ -145,7 +148,6 @@ export default function Notification() {
   };
 
   const deleteNotification = async (groupId) => {
-    if(!window.confirm("Delete this notification?")) return;
 
     try{
       const response = await fetch(
@@ -159,7 +161,8 @@ export default function Notification() {
       );
 
       if(response.ok){
-        alert("Notification deleted.");
+        setShowDeleteModal(false);
+        setNotificationToDelete(null);
         loadNotifications();
       }
     }catch(err){
@@ -356,7 +359,8 @@ export default function Notification() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          deleteNotification(item.notification_group);
+                          setNotificationToDelete(item.notification_group);
+                          setShowDeleteModal(true);
                         }}
                         className="runded-lg bg-red-100 px-3 py-2 text-red-600 hover:bg-red-200"
                       >
@@ -370,6 +374,53 @@ export default function Notification() {
           </div>
         </div>
       </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+
+          <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+
+            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
+              <FaTrash className="text-3xl text-red-600" />
+            </div>
+
+            <h2 className="text-center text-2xl font-bold text-slate-900">
+              Delete Notification?
+            </h2>
+
+            <p className="mt-3 text-center text-slate-600">
+              This notification will be permanently removed.
+            </p>
+
+            <p className="mt-1 text-center text-sm text-red-500">
+              This action cannot be undone.
+            </p>
+
+            <div className="mt-8 flex gap-4">
+
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setNotificationToDelete(null);
+                }}
+                className="flex-1 rounded-2xl border border-slate-300 py-3 font-semibold text-slate-700 transition hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => deleteNotification(notificationToDelete)}
+                className="flex-1 rounded-2xl bg-red-600 py-3 font-semibold text-white transition hover:bg-red-700"
+              >
+                Delete
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
     </div>
   );
 }

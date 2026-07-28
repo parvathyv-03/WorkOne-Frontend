@@ -26,6 +26,9 @@ export default function ManageEmployees() {
   const [selectedDesignation, setSelectedDesignation] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState(null);
 
   const navigate = useNavigate();
 
@@ -79,39 +82,38 @@ export default function ManageEmployees() {
     }
   };
 
-  const deleteEmployee = async(id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this employee?"
-    );
+  const deleteEmployee = (employee) => {
+    setEmployeeToDelete(employee);
+    setShowDeleteModal(true);
+  };
 
-    if(!confirmDelete) return;
-
+  const confirmDelete = async () => {
     const token = localStorage.getItem("accessToken");
 
-    try{
-
+    try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/hr/employees/${id}/`,
+        `http://127.0.0.1:8000/api/hr/employees/${employeeToDelete.employee_id}/`,
         {
-          method:"DELETE",
-          headers:{
-            Authorization:`Bearer ${token}`,
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
       const data = await response.json();
 
-      if(!response.ok){
+      if (!response.ok) {
         alert(data.message || "Unable to delete employee.");
         return;
       }
 
-      alert(data.message)
+      setShowDeleteModal(false);
+      setEmployeeToDelete(null);
 
       await fetchEmployees();
 
-    } catch(error){
+    } catch (error) {
       console.error(error);
       alert("Something went wrong.");
     }
@@ -419,7 +421,7 @@ export default function ManageEmployees() {
                         onClick={(e) => {
                           e.stopPropagation();
                           console.log(employee);
-                          deleteEmployee(employee.employee_id);
+                          deleteEmployee(employee);
                         }}
                         className="rounded-lg border border-slate-200 p-2 text-slate-600 transition-all duration-300 hover:border-red-500 hover:bg-red-50 hover:text-red-500">
                         <FaTrash className="text-sm" />
@@ -477,7 +479,7 @@ export default function ManageEmployees() {
                 <button 
                     onClick={(e) => {
                       e.stopPropagation();
-                      deleteEmployee(employee.id);
+                      deleteEmployee(employee);
                     }}
                   className="rounded-lg bg-red-50 p-2 text-red-500 transition-all duration-300 hover:bg-red-500 hover:text-white">
                   <FaTrash className="text-sm" />
@@ -633,6 +635,61 @@ export default function ManageEmployees() {
           </div>
         </div>
       </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+
+          <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+              <FaTrash className="text-3xl text-red-600" />
+            </div>
+
+            <h2 className="mt-5 text-center text-2xl font-bold text-slate-900">
+              Delete Employee
+            </h2>
+
+            <p className="mt-3 text-center text-slate-600">
+              Are you sure you want to delete
+            </p>
+
+            <p className="mt-2 text-center font-semibold text-slate-900">
+              {employeeToDelete?.first_name} {employeeToDelete?.last_name}
+            </p>
+
+            <p className="mt-1 text-center text-sm text-slate-500">
+              ({employeeToDelete?.employee_id})
+            </p>
+
+            <p className="mt-4 text-center text-sm text-red-500">
+              This action cannot be undone.
+            </p>
+
+            <div className="mt-8 flex justify-center gap-4">
+
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setEmployeeToDelete(null);
+                }}
+                className="rounded-xl border border-slate-300 px-6 py-2 font-medium hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={confirmDelete}
+                className="rounded-xl bg-red-600 px-6 py-2 font-medium text-white hover:bg-red-700"
+              >
+                Delete Employee
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
     </div>
   );
 }

@@ -167,6 +167,17 @@ export default function ReportsAnalytics() {
  
   };
 
+  const colorMap = {
+    violet: "bg-violet-600",
+    sky: "bg-sky-500",
+    pink: "bg-pink-500",
+    yellow: "bg-yellow-500",
+
+    green: "bg-green-500",
+    red: "bg-red-500",
+    orange: "bg-orange-500",
+  };
+
 
   const exportReports = [
     { label: "Export Attendance Report",reportType:"attendance", icon: FaFileExport },
@@ -235,7 +246,12 @@ export default function ReportsAnalytics() {
                   <p>{item.value}%</p>
                 </div>
                 <div className="h-3 rounded-full bg-slate-100">
-                  <div className={`${item.color} h-full rounded-full`} style={{ width: `${item.value}%` }} />
+                  <div className="h-3 rounded-full bg-slate-100">
+                      <div
+                        className={`${item.color} h-full rounded-full`}
+                        style={{ width: `${item.value}%` }}
+                      />
+                    </div>
                 </div>
               </div>
             ))}
@@ -258,7 +274,7 @@ export default function ReportsAnalytics() {
                   <p>{item.value}%</p>
                 </div>
                 <div className="h-3 rounded-full bg-slate-100">
-                  <div className={`${item.color} h-full rounded-full`} style={{ width: `${item.value}%` }} />
+                  <div className={`${colorMap[item.color]} h-full rounded-full`} style={{ width: `${item.value}%` }} />
                 </div>
               </div>
             ))}

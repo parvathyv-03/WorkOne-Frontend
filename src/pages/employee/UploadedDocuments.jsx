@@ -40,7 +40,7 @@ export default function UploadedDocuments() {
     })
     .then((data) => {
         console.log(data);
-        setDocs(data);
+        setDocs(data.results);
     })
     .catch((err) => console.log(err));
   },[]);
