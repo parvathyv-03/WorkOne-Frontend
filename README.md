@@ -93,6 +93,16 @@ The frontend consumes REST APIs provided by the Django REST Framework backend.
 ![Employee Homepage](src/assets/screenshots/Employee-Dashboard.png)
 ![Employee Profile](src/assets/screenshots/Employee-MyProfile.png)
 ![Employee Attendance](src/assets/screenshots/Employee-Attendance.png)
+![Employee Leave](src/assets/screenshots/Employee-Leave.png)
+![Employee Compaints](src/assets/screenshots/Employee-Complaints.png)
+![Employee Notifications](src/assets/screenshots/Employee-Notifications.png)
+
+---
+
+## HR Dashboard
+
+![HR Homepage](src/assets/screenshots/HR-Dashboard.png)
+![HR Employee Management](src/assets/screenshots/HR-Dashboard.png)
 
 
 
