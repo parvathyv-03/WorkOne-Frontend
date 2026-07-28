@@ -39,11 +39,11 @@ The frontend communicates with a Django REST Framework backend through RESTful A
 
 # 🛠 Technologies Used
 
-React
-JavaScript
-Fetch API
-HTML
-TailwindCSS
+- React
+- JavaScript
+- Fetch API
+- HTML
+- TailwindCSS
 
 ---
 
