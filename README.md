@@ -1,16 +1,101 @@
-# React + Vite
+# WORKONE HRMS - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# 📌 About
 
-Currently, two official plugins are available:
+**WORKONE HRMS** is a modern Human Resource Management System (HRMS) frontend developed using **React**. It provides separate Employee and HR dashboards with a responsive and user-friendly interface, to efficiently manage employees, attendance, leave requests, complaints, payroll, notifications, and other HR operations.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The frontend communicates with a Django REST Framework backend through RESTful APIs and implements secure JWT-based authentication with role-based access control.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+# Features
 
-## Expanding the ESLint configuration
+## 👤 Employee Dashboard
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Secure Login & Authentication
+- Dashboard 
+- Personal Profile 
+- Attendance 
+- Leave Request 
+- Complaints
+- Notifications
+- Payslip 
+
+---
+
+## 👨‍💼 HR Dashboard
+
+- Dashboard 
+- Employee Management
+- Attendance Tracking
+- Leave Approval
+- Complaint Management
+- Notifications
+- Payslip Management
+- Reports and Analytics
+- Recruitment and Interviews
+
+---
+
+# 🛠 Technologies Used
+
+React
+JavaScript
+Fetch API
+HTML
+TailwindCSS
+
+---
+
+# 📂 Project Structure
+
+```
+src/
+│
+├── api/
+├── assets/
+├── components/
+├── layouts/
+├── pages/
+│   ├── employee/
+│   ├── hr/
+├── EmployeeDashboard.jsx
+├── Login.jsx
+├── App.jsx
+└── index.css
+└── main.jsx
+```
+
+---
+
+# 🔗 Backend API
+
+The frontend consumes REST APIs provided by the Django REST Framework backend.
+
+---
+
+# 🔒 Authentication
+
+- JWT Authentication
+- Protected Routes
+- Role-based Access Control
+
+---
+
+# 📸 Screenshots
+
+## Login
+
+![Login](src/assets/screenshots/Login.png)
+
+## Employee Dashboard
+
+## Employee Homepage
+
+![Employee Homepage](assets/screenshots/Employee-Dashboard.png)
+
+
+
+
+
+
