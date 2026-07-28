@@ -90,9 +90,12 @@ The frontend consumes REST APIs provided by the Django REST Framework backend.
 
 ## Employee Dashboard
 
-## Employee Homepage
+![Employee Homepage](src/assets/screenshots/Employee-Dashboard.png)
+![Employee Profile](src/assets/screenshots/Employee-MyProfile.png)
+![Employee Attendance](src/assets/screenshots/Employee-Attendance.png)
 
-![Employee Homepage](assets/screenshots/Employee-Dashboard.png)
+
+
 
 
 
