@@ -39,11 +39,11 @@ The frontend communicates with a Django REST Framework backend through RESTful A
 
 # 🛠 Technologies Used
 
-React
-JavaScript
-Fetch API
-HTML
-TailwindCSS
+- React
+- JavaScript
+- Fetch API
+- HTML
+- TailwindCSS
 
 ---
 
@@ -103,6 +103,19 @@ The frontend consumes REST APIs provided by the Django REST Framework backend.
 
 ![HR Homepage](src/assets/screenshots/HR-Dashboard.png)
 ![HR Employee Management](src/assets/screenshots/HR-Dashboard.png)
+![HR Manage Employees](src/assets/screenshots/HR-ManageEmployees.png)
+![HR Employee Documents](src/assets/screenshots/HR-EmployeeDocuments.png)
+![HR Leave Approval](src/assets/screenshots/HR-Leave.png)
+![HR Attendance Tracking](src/assets/screenshots/HR-Attendance.png)
+![HR Complaint Management](src/assets/screenshots/HR-Complaint.png)
+![HR  Recruitment and Interviews](src/assets/screenshots/HR-Recruitment.png)
+![HR  Recruitment and Interviews](src/assets/screenshots/HR-JobDescription.png)
+![HR  Recruitment and Interviews](src/assets/screenshots/HR-JobCandidate.png)
+![HR  Reports](src/assets/screenshots/HR-Reports.png)
+![HR  Notifications](src/assets/screenshots/HR-Notification.png)
+
+
+
 
 
 
