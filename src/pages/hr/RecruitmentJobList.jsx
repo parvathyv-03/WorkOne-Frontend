@@ -14,65 +14,6 @@ import {
   FaTimes,
 } from "react-icons/fa";
 
-const jobs = [
-  {
-    id: 1,
-    title: "Python Django Developer",
-    department: "Engineering",
-    openings: 3,
-    applications: 42,
-    status: "Open",
-    createdDate: "15 Jul 2026",
-  },
-  {
-    id: 2,
-    title: "React Developer",
-    department: "Engineering",
-    openings: 2,
-    applications: 34,
-    status: "Open",
-    createdDate: "18 Jul 2026",
-  },
-  {
-    id: 3,
-    title: "HR Executive",
-    department: "HR",
-    openings: 1,
-    applications: 20,
-    status: "Closed",
-    createdDate: "10 Jul 2026",
-  },
-  {
-    id: 4,
-    title: "Product Designer",
-    department: "Design",
-    openings: 2,
-    applications: 28,
-    status: "Hiring",
-    createdDate: "12 Jul 2026",
-  },
-  {
-    id: 5,
-    title: "Data Analyst",
-    department: "Analytics",
-    openings: 2,
-    applications: 26,
-    status: "Open",
-    createdDate: "20 Jul 2026",
-  },
-  {
-    id: 6,
-    title: "Frontend Engineer",
-    department: "Engineering",
-    openings: 1,
-    applications: 18,
-    status: "Hiring",
-    createdDate: "22 Jul 2026",
-  },
-];
-
-
-
 const statusOptions = ["All Jobs", "Open", "Hiring", "Closed"];
 const departmentOptions = ["Department", "Engineering", "HR", "Design", "Analytics"];
 
@@ -228,7 +169,7 @@ const confirmDelete = async () => {
     setFormErrors({});
   };
 
-  const handleCreateJob = async () => {
+  const handleCreateJob = async (event) => {
     event.preventDefault();
 
   try{
@@ -258,8 +199,6 @@ const confirmDelete = async () => {
     );
 
     const data = await response.json();
-
-    console.log(data);
 
     if(!response.ok){
       console.error(data);

@@ -153,9 +153,6 @@ export default function ManageEmployees() {
     ...new Set(employees.map(emp => emp.designation))
   ];
 
-  // Statuses
-  // const statuses = ["All Status", "Active", "Inactive"];
-
   // Filtered employees
   const filteredEmployees = employees.filter((emp) => {
     const matchesSearch =
@@ -175,11 +172,6 @@ export default function ManageEmployees() {
       selectedDesignation === "" ||
       selectedDesignation === "All Designations" ||
       emp.designation === selectedDesignation;
-
-    // const matchesStatus =
-    //   selectedStatus === "" ||
-    //   selectedStatus === "All Status" ||
-    //   emp.status === selectedStatus;
 
     return matchesSearch && matchesDepartment && matchesDesignation ;
   });
@@ -291,23 +283,6 @@ export default function ManageEmployees() {
             </select>
           </div>
 
-          {/* Status Dropdown */}
-          <div>
-            {/* <label className="mb-2 block text-sm font-semibold text-slate-700">
-              Status
-            </label> */}
-            {/* <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 px-4 text-slate-900 outline-none transition-all duration-300 focus:border-[#36136E] focus:ring-2 focus:ring-[#F4F0FB]"
-            >
-              {statuses.map((status) => (
-                <option key={status} value={status === "All Status" ? "" : status}>
-                  {status}
-                </option>
-              ))}
-            </select> */}
-          </div>
         </div>
 
         {/* Filter Buttons */}
@@ -354,12 +329,7 @@ export default function ManageEmployees() {
                 <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
                   Joining Date
                 </th>
-                {/* <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">
-                  Status
-                </th> */}
-                {/* <th className="px-4 py-3 text-center text-sm font-semibold text-slate-700">
-                  Actions
-                </th> */}
+
               </tr>
             </thead>
             <tbody>
@@ -392,17 +362,6 @@ export default function ManageEmployees() {
                       "en-US",
                       { year: "numeric", month: "short", day: "numeric" }
                     )}
-                  </td>
-                  <td className="px-4 py-4 text-sm">
-                    {/* <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                        employee.status === "Active"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {employee.status}
-                    </span> */}
                   </td>
                   <td className="px-4 py-4 text-center">
                     <div className="flex justify-center gap-2">
@@ -454,15 +413,6 @@ export default function ManageEmployees() {
                     <p className="text-xs text-slate-500">{employee.employee_id}</p>
                   </div>
                 </div>
-                {/* <span
-                  className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                    employee.status === "Active"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {employee.status}
-                </span> */}
               </div>
               <div className="mb-3 space-y-1 text-xs text-slate-600">
                 <p>{employee.department}</p>
@@ -559,24 +509,6 @@ export default function ManageEmployees() {
                     )}
                   </p>
                 </div>
-                {/* <div className="rounded-2xl bg-[#F4F0FB] p-4">
-                  <p className="mb-1 text-xs font-semibold text-slate-600">
-                    Status
-                  </p> */}
-                  {/* <p className="flex items-center gap-2 font-semibold">
-                    {selectedEmployee.status === "Active" ? (
-                      <>
-                        <FaCheckCircle className="text-green-600" />
-                        <span className="text-green-600">Active</span>
-                      </>
-                    ) : (
-                      <>
-                        <FaTimesCircle className="text-red-600" />
-                        <span className="text-red-600">Inactive</span>
-                      </>
-                    )}
-                  </p> */}
-                {/* </div> */}
               </div>
 
               <div className="border-t border-slate-200 pt-4">
@@ -627,9 +559,6 @@ export default function ManageEmployees() {
                     day: "numeric",
                   })}
                 </p>
-                {/* <span className="inline-block rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">
-                  {emp.status}
-                </span> */}
               </div>
             ))}
           </div>

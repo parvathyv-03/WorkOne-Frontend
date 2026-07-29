@@ -241,7 +241,6 @@ export default function UploadedDocuments() {
                   </div>
                   <div className="text-right space-y-2">
                     <Badge status={doc.status} />
-                    {/* <div className="text-xs text-slate-400">{doc.size}</div> */}
                   </div>
                 </div>
 
